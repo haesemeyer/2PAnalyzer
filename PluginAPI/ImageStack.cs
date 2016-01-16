@@ -80,11 +80,9 @@ namespace TwoPAnalyzer.PluginAPI
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
+                    //dispose managed state (managed objects).
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
+                
                 if (_imageData != IntPtr.Zero && !_isShallow)
                 {
                     Marshal.FreeHGlobal(_imageData);

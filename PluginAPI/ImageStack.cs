@@ -20,6 +20,26 @@ namespace TwoPAnalyzer.PluginAPI
             get; private set;
         } = IntPtr.Zero;
 
+        /// <summary>
+        /// The image width in pixels
+        /// </summary>
+        private int _imageWidth;
+
+        /// <summary>
+        /// The image height in pixels
+        /// </summary>
+        private int _imageHeight;
+
+        /// <summary>
+        /// The number of z-planes in the stack
+        /// </summary>
+        private int _zPlanes;
+
+        /// <summary>
+        /// The number of timepoints in the series
+        /// </summary>
+        private int _timePoints;
+
         #endregion
 
         #region Properties
@@ -33,7 +53,66 @@ namespace TwoPAnalyzer.PluginAPI
             get; private set;
         } = false;
 
-        protected int ImageSize { get; private set; }
+        /// <summary>
+        /// The size of the image buffer in bytes
+        /// </summary>
+        protected int ImageNB { get; private set; }
+
+        /// <summary>
+        /// The image width in pixels
+        /// </summary>
+        public int ImageWidth
+        {
+            get { return _imageWidth; }
+            protected set
+            {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(ImageWidth), "Cannot be 0 or smaller");
+                _imageWidth = value;
+            }
+        }
+
+        /// <summary>
+        /// The image height in pixels
+        /// </summary>
+        public int ImageHeight
+        {
+            get { return _imageHeight; }
+            protected set
+            {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(ImageHeight), "Cannot be 0 or smaller");
+                _imageHeight = value;
+            }
+        }
+
+        /// <summary>
+        /// The number of z-planes in the image stack
+        /// </summary>
+        public int ZPlanes
+        {
+            get { return _zPlanes; }
+            protected set
+            {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(ZPlanes), "Cannot be 0 or smaller");
+                _zPlanes = value;
+            }
+        }
+
+        /// <summary>
+        /// The number of different timepoints in the image stack
+        /// </summary>
+        public int TimePoints
+        {
+            get { return _timePoints; }
+            protected set
+            {
+                if(value<1)
+                    throw new ArgumentOutOfRangeException(nameof(TimePoints), "Cannot be 0 or smaller");
+                _timePoints = value;
+            }
+        }
 
         #endregion
 
@@ -52,7 +131,7 @@ namespace TwoPAnalyzer.PluginAPI
             if (_imageData != IntPtr.Zero && !IsShallow)
                 Marshal.FreeHGlobal(_imageData);
             _imageData = Marshal.AllocHGlobal(size);
-            ImageSize = size;
+            ImageNB = size;
             IsShallow = false;
         }
 
@@ -64,13 +143,13 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="dst">The destination ImageStac, memory will be overwritten</param>
         protected static void CopyImageMemory(ImageStack src, ImageStack dst)
         {
-            if (src.ImageSize != dst.ImageSize)
+            if (src.ImageNB != dst.ImageNB)
                 throw new ArgumentException("src and dst need to have the same memory size");
             if (src._imageData == dst._imageData)
                 throw new ArgumentException("src and dst cannot point to the same buffer");
             if (src._imageData == IntPtr.Zero || dst._imageData == IntPtr.Zero)
                 throw new ArgumentException("src and dst cannot have null pointers");
-            memcpy_s(dst._imageData, (UIntPtr)dst.ImageSize, src._imageData, (UIntPtr)src.ImageSize);
+            memcpy_s(dst._imageData, (UIntPtr)dst.ImageNB, src._imageData, (UIntPtr)src.ImageNB);
         }
 
         /// <summary>
@@ -118,7 +197,7 @@ namespace TwoPAnalyzer.PluginAPI
                 {
                     Marshal.FreeHGlobal(_imageData);
                     _imageData = IntPtr.Zero;
-                    ImageSize = 0;
+                    ImageNB = 0;
                 }
 
                 IsDisposed = true;

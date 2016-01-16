@@ -10,6 +10,14 @@ namespace TwoPAnalyzer.PluginAPI
 {
     public abstract class ImageStack : IDisposable
     {
+        /// <summary>
+        /// Indicates the ordering of slices in the stack
+        /// (Z0-N)T0-(Z0-N)T1 versus (T0-N)Z0-(T0-N)Z1
+        /// </summary>
+        /// <remarks>For example acquisition of multiple timepoints per z-slice would lead to TBeforeZ ordering while
+        /// volumetric acquisition would lead to ZBeforeT ordering </remarks>
+        public enum SliceOrders { ZBeforeT = 0, TBeforeZ = 1 }
+
         #region Class Members
 
         /// <summary>
@@ -113,6 +121,12 @@ namespace TwoPAnalyzer.PluginAPI
                 _timePoints = value;
             }
         }
+
+        /// <summary>
+        /// Indicates whether adjacent stack slices
+        /// are different ZPlanes or different time-points
+        /// </summary>
+        public SliceOrders SliceOrder { get; protected set; }
 
         #endregion
 

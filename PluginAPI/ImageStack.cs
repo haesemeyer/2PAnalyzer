@@ -70,18 +70,19 @@ namespace TwoPAnalyzer.PluginAPI
                 throw new ArgumentException("src and dst cannot point to the same buffer");
             if (src._imageData == IntPtr.Zero || dst._imageData == IntPtr.Zero)
                 throw new ArgumentException("src and dst cannot have null pointers");
-            memcpy(dst._imageData, src._imageData, (UIntPtr)src.ImageSize);
+            memcpy_s(dst._imageData, (UIntPtr)dst.ImageSize, src._imageData, (UIntPtr)src.ImageSize);
         }
 
         /// <summary>
         /// Copies x number of bytes using memcpy
         /// </summary>
         /// <param name="dest">Pointer to destination memory</param>
+        /// <param name="size">The size of the dest buffer</param>
         /// <param name="src">Pointer to source memory</param>
         /// <param name="count">Number of bytes to copy</param>
         /// <returns></returns>
-        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        private static extern IntPtr memcpy(IntPtr dest, IntPtr src, UIntPtr count);// NOTE: memcyp PInvoke reduces portability!
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy_s", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        public static extern IntPtr memcpy_s(IntPtr dest, UIntPtr size, IntPtr src, UIntPtr count);// NOTE: memcyp PInvoke reduces portability!
 
         #endregion
 
@@ -112,7 +113,7 @@ namespace TwoPAnalyzer.PluginAPI
                 {
                     //dispose managed state (managed objects).
                 }
-                
+
                 if (_imageData != IntPtr.Zero && !IsShallow)
                 {
                     Marshal.FreeHGlobal(_imageData);

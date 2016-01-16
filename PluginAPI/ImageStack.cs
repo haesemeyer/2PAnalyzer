@@ -15,7 +15,10 @@ namespace TwoPAnalyzer.PluginAPI
         /// <summary>
         /// Pointer to the image data
         /// </summary>
-        protected IntPtr _imageData = IntPtr.Zero;
+        protected IntPtr _imageData
+        {
+            get; private set;
+        } = IntPtr.Zero;
 
         /// <summary>
         /// Indicates whether we own and should free

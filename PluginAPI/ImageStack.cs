@@ -53,6 +53,29 @@ namespace TwoPAnalyzer.PluginAPI
             _isShallow = false;
         }
 
+        /// <summary>
+        /// Directly copy memory from one image to another if their buffer size is the same
+        /// No checks are performed to ensure that both ImageStacks have same layout, bit depth, etc.
+        /// </summary>
+        /// <param name="src">The source ImageStack</param>
+        /// <param name="dst">The destination ImageStac, memory will be overwritten</param>
+        protected static void CopyImageMemory(ImageStack src, ImageStack dst)
+        {
+            if (src.ImageSize != dst.ImageSize)
+                throw new ArgumentException("src and dst need to have the same memory size");
+            memcpy(dst._imageData, src._imageData, (UIntPtr)src.ImageSize);
+        }
+
+        /// <summary>
+        /// Copies x number of bytes using memcpy
+        /// </summary>
+        /// <param name="dest">Pointer to destination memory</param>
+        /// <param name="src">Pointer to source memory</param>
+        /// <param name="count">Number of bytes to copy</param>
+        /// <returns></returns>
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        private static extern IntPtr memcpy(IntPtr dest, IntPtr src, UIntPtr count);// NOTE: memcyp PInvoke reduces portability!
+
         #endregion
 
         #region IDisposable Support

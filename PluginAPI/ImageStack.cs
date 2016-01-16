@@ -59,6 +59,11 @@ namespace TwoPAnalyzer.PluginAPI
         /// </summary>
         private int _timePoints;
 
+        /// <summary>
+        /// The size of one pixel in bytes
+        /// </summary>
+        private byte _pixelSize;
+
         #endregion
 
         #region Properties
@@ -166,7 +171,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// Request unmanaged memory for the image data
         /// </summary>
         /// <param name="size">The requested memory size in bytes</param>
-        protected void RequestImageData(int size)
+        private void RequestImageData(int size)
         {
             DisposeGuard();
             if (size < 1)
@@ -177,6 +182,34 @@ namespace TwoPAnalyzer.PluginAPI
             _imageData = Marshal.AllocHGlobal(size);
             ImageNB = size;
             IsShallow = false;
+        }
+
+        /// <summary>
+        /// Initializes a new image buffer for the given dimension in sync
+        /// with the corresponding image properties
+        /// </summary>
+        /// <param name="width">The width of each image in the stack</param>
+        /// <param name="height">The height of each image in the stack</param>
+        /// <param name="nZ">The number of zPlanes</param>
+        /// <param name="nT">The number of time slices</param>
+        /// <param name="pixelSize">The number of bytes per pixel</param>
+        protected void InitializeImageBuffer(int width, int height, int nZ, int nT, byte pixelSize)
+        {
+            DisposeGuard();
+            if (pixelSize == 0)
+                throw new ArgumentOutOfRangeException(nameof(pixelSize), "Bytes per pixel has to be at least one");
+            _pixelSize = pixelSize;
+            ImageWidth = width;
+            ImageHeight = height;
+            ZPlanes = nZ;
+            TimePoints = nT;
+            //calculate stride for 4-byte alignment
+            if ((width * pixelSize) % 4 == 0)
+                Stride = width * pixelSize;
+            else
+                Stride = (width * pixelSize) + 4 - ((width * pixelSize) % 4);
+            //request appropriately sized buffer (note: pixelSize is factored into Stride)
+            RequestImageData(Stride * ImageHeight * ZPlanes * TimePoints);
         }
 
         /// <summary>

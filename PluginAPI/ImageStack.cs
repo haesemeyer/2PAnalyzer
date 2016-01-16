@@ -20,15 +20,18 @@ namespace TwoPAnalyzer.PluginAPI
             get; private set;
         } = IntPtr.Zero;
 
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// Indicates whether we own and should free
         /// the memory of _imageData or not
         /// </summary>
-        protected bool _isShallow = false;
-
-        #endregion
-
-        #region Properties
+        protected bool IsShallow
+        {
+            get; private set;
+        } = false;
 
         protected int ImageSize { get; private set; }
 
@@ -46,11 +49,11 @@ namespace TwoPAnalyzer.PluginAPI
             if (size < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), "Requested memory size has to be 1 or greater");
             //free old image data if necessary
-            if (_imageData != IntPtr.Zero && !_isShallow)
+            if (_imageData != IntPtr.Zero && !IsShallow)
                 Marshal.FreeHGlobal(_imageData);
             _imageData = Marshal.AllocHGlobal(size);
             ImageSize = size;
-            _isShallow = false;
+            IsShallow = false;
         }
 
         /// <summary>
@@ -106,7 +109,7 @@ namespace TwoPAnalyzer.PluginAPI
                     //dispose managed state (managed objects).
                 }
                 
-                if (_imageData != IntPtr.Zero && !_isShallow)
+                if (_imageData != IntPtr.Zero && !IsShallow)
                 {
                     Marshal.FreeHGlobal(_imageData);
                     _imageData = IntPtr.Zero;

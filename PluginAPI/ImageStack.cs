@@ -66,6 +66,8 @@ namespace TwoPAnalyzer.PluginAPI
         {
             if (src.ImageSize != dst.ImageSize)
                 throw new ArgumentException("src and dst need to have the same memory size");
+            if (src._imageData == dst._imageData)
+                throw new ArgumentException("src and dst cannot point to the same buffer");
             memcpy(dst._imageData, src._imageData, (UIntPtr)src.ImageSize);
         }
 

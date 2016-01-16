@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace TwoPAnalyzer.PluginAPI
 {
+    /// <summary>
+    /// Base class for 4D image stacks. All slices will be stored
+    /// in row-major order (width-dimension) but arrangement
+    /// of time versus z-slices can be variable
+    /// </summary>
     public abstract class ImageStack : IDisposable
     {
         /// <summary>
@@ -32,6 +37,12 @@ namespace TwoPAnalyzer.PluginAPI
         /// The image width in pixels
         /// </summary>
         private int _imageWidth;
+
+        /// <summary>
+        /// The length of one row in bytes
+        /// for 4-byt alignment
+        /// </summary>
+        private int _stride;
 
         /// <summary>
         /// The image height in pixels
@@ -72,7 +83,7 @@ namespace TwoPAnalyzer.PluginAPI
         public int ImageWidth
         {
             get { return _imageWidth; }
-            protected set
+            private set
             {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException(nameof(ImageWidth), "Cannot be 0 or smaller");
@@ -86,7 +97,7 @@ namespace TwoPAnalyzer.PluginAPI
         public int ImageHeight
         {
             get { return _imageHeight; }
-            protected set
+            private set
             {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException(nameof(ImageHeight), "Cannot be 0 or smaller");
@@ -100,7 +111,7 @@ namespace TwoPAnalyzer.PluginAPI
         public int ZPlanes
         {
             get { return _zPlanes; }
-            protected set
+            private set
             {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException(nameof(ZPlanes), "Cannot be 0 or smaller");
@@ -114,11 +125,30 @@ namespace TwoPAnalyzer.PluginAPI
         public int TimePoints
         {
             get { return _timePoints; }
-            protected set
+            private set
             {
                 if(value<1)
                     throw new ArgumentOutOfRangeException(nameof(TimePoints), "Cannot be 0 or smaller");
                 _timePoints = value;
+            }
+        }
+
+        /// <summary>
+        /// The length of one row in bytes
+        /// for 4-byt alignment
+        /// </summary>
+        public int Stride
+        {
+            get { return _stride; }
+            protected set
+            {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(Stride), "Cannot be 0 or smaller");
+#if DEBUG
+                if (value % 4 != 0)
+                    System.Diagnostics.Debug.WriteLine("Initialized stride that is not dividable by 4");
+#endif
+                _stride = 0;
             }
         }
 

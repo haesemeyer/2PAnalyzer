@@ -42,7 +42,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// The length of one row in bytes
         /// for 4-byt alignment
         /// </summary>
-        private int _stride;
+        private long _stride;
 
         /// <summary>
         /// The image height in pixels
@@ -80,7 +80,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// <summary>
         /// The size of the image buffer in bytes
         /// </summary>
-        protected int ImageNB { get; private set; }
+        protected long ImageNB { get; private set; }
 
         /// <summary>
         /// The image width in pixels
@@ -142,7 +142,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// The length of one row in bytes
         /// for 4-byt alignment
         /// </summary>
-        public int Stride
+        public long Stride
         {
             get { return _stride; }
             protected set
@@ -171,16 +171,16 @@ namespace TwoPAnalyzer.PluginAPI
         /// Request unmanaged memory for the image data
         /// </summary>
         /// <param name="size">The requested memory size in bytes</param>
-        private void RequestImageData(int size)
+        private void RequestImageData(IntPtr size)
         {
             DisposeGuard();
-            if (size < 1)
+            if (size.ToInt64() < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), "Requested memory size has to be 1 or greater");
             //free old image data if necessary
             if (_imageData != IntPtr.Zero && !IsShallow)
                 Marshal.FreeHGlobal(_imageData);
             _imageData = Marshal.AllocHGlobal(size);
-            ImageNB = size;
+            ImageNB = (long)size;
             IsShallow = false;
         }
 
@@ -209,7 +209,7 @@ namespace TwoPAnalyzer.PluginAPI
             else
                 Stride = (width * pixelSize) + 4 - ((width * pixelSize) % 4);
             //request appropriately sized buffer (note: pixelSize is factored into Stride)
-            RequestImageData(Stride * ImageHeight * ZPlanes * TimePoints);
+            RequestImageData((IntPtr)(Stride * ImageHeight * ZPlanes * TimePoints));
         }
 
         /// <summary>

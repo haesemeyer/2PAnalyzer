@@ -29,6 +29,9 @@ namespace TwoPAnalyzer.PluginAPI
         #endregion
 
         #region Properties
+
+        protected int ImageSize { get; private set; }
+
         #endregion
 
         #region Methods
@@ -46,6 +49,8 @@ namespace TwoPAnalyzer.PluginAPI
             if (_imageData != IntPtr.Zero && !_isShallow)
                 Marshal.FreeHGlobal(_imageData);
             _imageData = Marshal.AllocHGlobal(size);
+            ImageSize = size;
+            _isShallow = false;
         }
 
         #endregion
@@ -84,6 +89,7 @@ namespace TwoPAnalyzer.PluginAPI
                 {
                     Marshal.FreeHGlobal(_imageData);
                     _imageData = IntPtr.Zero;
+                    ImageSize = 0;
                 }
 
                 IsDisposed = true;

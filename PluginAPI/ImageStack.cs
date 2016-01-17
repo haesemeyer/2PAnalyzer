@@ -240,6 +240,57 @@ namespace TwoPAnalyzer.PluginAPI
         [DllImport("msvcrt.dll", EntryPoint = "memcpy_s", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         public static extern IntPtr memcpy_s(IntPtr dest, UIntPtr size, IntPtr src, UIntPtr count);// NOTE: memcyp PInvoke reduces portability!
 
+        /// <summary>
+        /// Returns a pointer to the start of the given slice in the image stack
+        /// </summary>
+        /// <param name="z">The z-index of the slice</param>
+        /// <param name="t">The time-index of the slice</param>
+        /// <returns></returns>
+        protected IntPtr SliceStart(int z, int t)
+        {
+            DisposeGuard();
+            if (_imageData == IntPtr.Zero)
+                return IntPtr.Zero;
+            if (z < 0 || z >= ZPlanes)
+                throw new ArgumentOutOfRangeException(nameof(z), "Has to be at least 0 and smaller than number of ZPlanes in stack");
+            if (t < 0 || t >= TimePoints)
+                throw new ArgumentOutOfRangeException(nameof(t), "Hast to be at least 0 and smaller than the number of TimePoints in stack");
+            long sliceBytes = ImageHeight * Stride;
+            long numSlices = 0;
+            if(SliceOrder == SliceOrders.TBeforeZ)
+            {
+                //First timepoints then z-step
+                numSlices = z * TimePoints + t;
+            }
+            else
+            {
+                //First whole z-stack than time-progression
+                numSlices = t * ZPlanes + z;
+            }
+            long requiredOffset = sliceBytes * numSlices;
+            //we can only add an int32 to an IntPtr at one time
+            if (requiredOffset <= Int32.MaxValue)
+                return IntPtr.Add(_imageData, (int)requiredOffset);
+            else
+            {
+                IntPtr retval = _imageData;
+                while (true)
+                {
+                    if (requiredOffset > Int32.MaxValue)
+                    {
+                        retval += Int32.MaxValue;
+                        requiredOffset -= Int32.MaxValue;
+                    }
+                    else
+                    {
+                        retval += (int)requiredOffset;
+                        break;
+                    }
+                }
+                return retval;
+            }
+        }
+
         #endregion
 
         #region IDisposable Support

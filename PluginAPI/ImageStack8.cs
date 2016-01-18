@@ -90,5 +90,93 @@ namespace TwoPAnalyzer.PluginAPI
             for (long i = 0; i < ImageNB; i++)
                 ImageData[i] = value;
         }
+
+        /// <summary>
+        /// Adds a constant value to each pixel
+        /// </summary>
+        /// <param name="value">The value to add</param>
+        public void AddConstant(byte value)
+        {
+            DisposeGuard();
+            //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
+            for (long i = 0; i < ImageNB; i++)
+                ImageData[i] += value;
+        }
+
+        /// <summary>
+        /// Subtracts a constant value from each pixel
+        /// </summary>
+        /// <param name="value">The value to subtract</param>
+        public void SubConstant(byte value)
+        {
+            DisposeGuard();
+            //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
+            for (long i = 0; i < ImageNB; i++)
+                ImageData[i] -= value;
+        }
+
+        /// <summary>
+        /// Performs pixel-by-pixel addition of the given image
+        /// stack to the current stack
+        /// </summary>
+        /// <param name="ims">The stack to add</param>
+        public void Add(ImageStack8 ims)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions");
+            //loop over pixels ensuring that data is looped over such that memory accesses
+            //are continuous in order to improve cache performance (z vs. t distinction likely does not matter)
+            if(SliceOrder == SliceOrders.TBeforeZ)
+            {
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] += *ims[x, y, z, t];
+            }
+            else
+            {
+                for (int t = 0; t < TimePoints; t++)
+                    for (int z = 0; z < ZPlanes; z++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] += *ims[x, y, z, t];
+            }
+        }
+
+        /// <summary>
+        /// Performs pixel-by-pixel subtraction of the given image
+        /// stack to the current stack
+        /// </summary>
+        /// <param name="ims">The stack to subtract</param>
+        public void Subtract(ImageStack8 ims)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions");
+            //loop over pixels ensuring that data is looped over such that memory accesses
+            //are continuous in order to improve cache performance (z vs. t distinction likely does not matter)
+            if (SliceOrder == SliceOrders.TBeforeZ)
+            {
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] -= *ims[x, y, z, t];
+            }
+            else
+            {
+                for (int t = 0; t < TimePoints; t++)
+                    for (int z = 0; z < ZPlanes; z++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] -= *ims[x, y, z, t];
+            }
+        }
     }
 }

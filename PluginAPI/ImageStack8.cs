@@ -63,5 +63,17 @@ namespace TwoPAnalyzer.PluginAPI
                 return PixelStart(x, y, z, t);
             }
         }
+
+        /// <summary>
+        /// Sets every pixel to the indicated value
+        /// </summary>
+        /// <param name="value">The new value of every pixel</param>
+        public void SetAll(byte value)
+        {
+            long bufferSize = ImageHeight * Stride * ZPlanes * TimePoints;
+            //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
+            for (long i = 0; i < bufferSize; i++)
+                ImageData[i] = value;
+        }
     }
 }

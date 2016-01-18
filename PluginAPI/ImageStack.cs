@@ -244,6 +244,36 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Makes a shallow copy effectively re-interpreting a memory chunk as a stack
+        /// </summary>
+        /// <param name="imageData">Pointer to the image data</param>
+        /// <param name="width">The intended width of the image stack</param>
+        /// <param name="stride">The intended stride of the image stack</param>
+        /// <param name="height">The intended height of the image stack</param>
+        /// <param name="nZ">The intended number of zPlanes</param>
+        /// <param name="nT">The intended number of Timepoints</param>
+        /// <param name="sliceOrder">The intended slice ordering</param>
+        /// <param name="pixelSize">The intended pixel size in bytes</param>
+        protected void InitializeShallow(byte* imageData, int width,long stride, int height, int nZ, int nT, SliceOrders sliceOrder, byte pixelSize)
+        {
+            if (imageData == null)
+                throw new ArgumentNullException(nameof(imageData));
+            DisposeGuard();
+            //free old image data if necessary
+            FreeImageData();
+            _pixelSize = pixelSize;
+            SliceOrder = sliceOrder;
+            ImageWidth = width;
+            ImageHeight = height;
+            ZPlanes = nZ;
+            TimePoints = nT;
+            Stride = stride;
+            _imageData = imageData;
+            IsShallow = true;
+            ImageNB = Stride * ImageHeight * ZPlanes * TimePoints;
+        }
+
+        /// <summary>
         /// Directly copy memory from one image to another if their buffer size is the same
         /// No checks are performed to ensure that both ImageStacks have same layout, bit depth, etc.
         /// </summary>

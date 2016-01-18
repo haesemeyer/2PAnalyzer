@@ -177,11 +177,21 @@ namespace TwoPAnalyzer.PluginAPI
             if (size.ToInt64() < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), "Requested memory size has to be 1 or greater");
             //free old image data if necessary
-            if (_imageData != null && !IsShallow)
-                Marshal.FreeHGlobal((IntPtr)_imageData);
+            FreeImageData();
             _imageData = (byte*)Marshal.AllocHGlobal(size);
             ImageNB = (long)size;
             IsShallow = false;
+        }
+
+        /// <summary>
+        /// Frees the image data if we don't have a shallow copy
+        /// </summary>
+        private void FreeImageData()
+        {
+            if (_imageData != null && !IsShallow)
+                Marshal.FreeHGlobal((IntPtr)_imageData);
+            _imageData = null;
+            ImageNB = 0;
         }
 
         /// <summary>
@@ -342,12 +352,7 @@ namespace TwoPAnalyzer.PluginAPI
                     //dispose managed state (managed objects).
                 }
 
-                if (_imageData != null && !IsShallow)
-                {
-                    Marshal.FreeHGlobal((IntPtr)_imageData);
-                    _imageData = null;
-                    ImageNB = 0;
-                }
+                FreeImageData();
 
                 IsDisposed = true;
             }

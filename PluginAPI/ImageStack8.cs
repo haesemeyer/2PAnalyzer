@@ -85,6 +85,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="value">The new value of every pixel</param>
         public void SetAll(byte value)
         {
+            DisposeGuard();
             //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
             for (long i = 0; i < ImageNB; i++)
                 ImageData[i] = value;

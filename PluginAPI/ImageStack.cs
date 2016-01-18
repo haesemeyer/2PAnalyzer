@@ -213,6 +213,27 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Initialize image buffer according to another image
+        /// and copy image data.
+        /// </summary>
+        /// <param name="imsource">The source image to copy</param>
+        protected void InitializeAsCopy(ImageStack imsource)
+        {
+            DisposeGuard();
+            _pixelSize = imsource._pixelSize;
+            SliceOrder = imsource.SliceOrder;
+            ImageWidth = imsource.ImageWidth;
+            ImageHeight = imsource.ImageHeight;
+            ZPlanes = imsource.ZPlanes;
+            TimePoints = imsource.TimePoints;
+            Stride = imsource.Stride;
+            //request image buffer
+            RequestImageData((IntPtr)(Stride * ImageHeight * ZPlanes * TimePoints));
+            //copy actual data
+            CopyImageMemory(imsource, this);
+        }
+
+        /// <summary>
         /// Directly copy memory from one image to another if their buffer size is the same
         /// No checks are performed to ensure that both ImageStacks have same layout, bit depth, etc.
         /// </summary>

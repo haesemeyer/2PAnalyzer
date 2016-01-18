@@ -38,6 +38,21 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Construct new ImageStack using an initialized buffer
+        /// </summary>
+        /// <param name="imageData">Pointer to the buffer data</param>
+        /// <param name="width">The width of the image in pixels</param>
+        /// <param name="stride">The stride of the image in bytes</param>
+        /// <param name="height">The height of the image in pixels</param>
+        /// <param name="nZ">The number of zPlanes in the stack</param>
+        /// <param name="nT">The number of timepoints in the stack</param>
+        /// <param name="sliceOrder">The slize ordering of the image</param>
+        public ImageStack8(byte* imageData, int width,int stride, int height, int nZ, int nT, SliceOrders sliceOrder)
+        {
+            InitializeShallow(imageData, width, stride, height, nZ, nT, sliceOrder, 1);
+        }
+
+        /// <summary>
         /// Pointer to the start of the image buffer
         /// </summary>
         public byte* ImageData

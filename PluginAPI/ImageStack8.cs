@@ -27,6 +27,17 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Copy constructor
+        /// </summary>
+        /// <param name="ims">The image to copy</param>
+        public ImageStack8(ImageStack8 ims)
+        {
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't copy disposed stack");
+            InitializeAsCopy(ims);
+        }
+
+        /// <summary>
         /// Pointer to the start of the image buffer
         /// </summary>
         public byte* ImageData

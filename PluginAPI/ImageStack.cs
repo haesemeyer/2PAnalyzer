@@ -352,6 +352,17 @@ namespace TwoPAnalyzer.PluginAPI
             return SliceStart(z, t) + Stride * y + x;
         }
 
+        /// <summary>
+        /// Checks whether a given image stack has dimensions compatible
+        /// with this image stack
+        /// </summary>
+        /// <param name="ims">The stack to compare</param>
+        /// <returns>True if the given image is compatible</returns>
+        public bool IsCompatible(ImageStack ims)
+        {
+            return (ims.SliceOrder == SliceOrder) & (ims.ImageWidth == ImageWidth) & (ims.ImageHeight == ImageHeight) & (ims.ZPlanes == ZPlanes) & (ims.TimePoints == TimePoints);
+        }
+
         #endregion
 
         #region IDisposable Support

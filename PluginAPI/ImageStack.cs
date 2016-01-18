@@ -271,6 +271,26 @@ namespace TwoPAnalyzer.PluginAPI
             return _imageData + requiredOffset;
         }
 
+        /// <summary>
+        /// Returns a pointer to the given pixel in the image stack
+        /// </summary>
+        /// <param name="x">The x-coordinate (column) of the pixel</param>
+        /// <param name="y">The y-coordinate (row) of the pixel</param>
+        /// <param name="z">The z-plane of the pixel</param>
+        /// <param name="t">The timepoint of the pixel</param>
+        /// <returns></returns>
+        protected byte* PixelStart(int x, int y, int z, int t)
+        {
+            DisposeGuard();
+            if (_imageData == null)
+                return null;
+            if (x < 0 || x >= ImageWidth)
+                throw new ArgumentOutOfRangeException(nameof(x));
+            if (y < 0 || y >= ImageHeight)
+                throw new ArgumentOutOfRangeException(nameof(y));
+            return SliceStart(z, t) + Stride * y + x;
+        }
+
         #endregion
 
         #region IDisposable Support

@@ -349,7 +349,7 @@ namespace TwoPAnalyzer.PluginAPI
                 throw new ArgumentOutOfRangeException(nameof(x));
             if (y < 0 || y >= ImageHeight)
                 throw new ArgumentOutOfRangeException(nameof(y));
-            return SliceStart(z, t) + Stride * y + x;
+            return SliceStart(z, t) + Stride * y + x*_pixelSize;
         }
 
         /// <summary>

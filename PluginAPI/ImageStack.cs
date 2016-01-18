@@ -13,7 +13,7 @@ namespace TwoPAnalyzer.PluginAPI
     /// in row-major order (width-dimension) but arrangement
     /// of time versus z-slices can be variable
     /// </summary>
-    public abstract class ImageStack : IDisposable
+    public abstract unsafe class ImageStack : IDisposable
     {
         /// <summary>
         /// Indicates the ordering of slices in the stack
@@ -28,10 +28,10 @@ namespace TwoPAnalyzer.PluginAPI
         /// <summary>
         /// Pointer to the image data
         /// </summary>
-        protected IntPtr _imageData
+        protected byte* _imageData
         {
             get; private set;
-        } = IntPtr.Zero;
+        } = null;
 
         /// <summary>
         /// The image width in pixels
@@ -177,9 +177,9 @@ namespace TwoPAnalyzer.PluginAPI
             if (size.ToInt64() < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), "Requested memory size has to be 1 or greater");
             //free old image data if necessary
-            if (_imageData != IntPtr.Zero && !IsShallow)
-                Marshal.FreeHGlobal(_imageData);
-            _imageData = Marshal.AllocHGlobal(size);
+            if (_imageData != null && !IsShallow)
+                Marshal.FreeHGlobal((IntPtr)_imageData);
+            _imageData = (byte*)Marshal.AllocHGlobal(size);
             ImageNB = (long)size;
             IsShallow = false;
         }
@@ -224,9 +224,9 @@ namespace TwoPAnalyzer.PluginAPI
                 throw new ArgumentException("src and dst need to have the same memory size");
             if (src._imageData == dst._imageData)
                 throw new ArgumentException("src and dst cannot point to the same buffer");
-            if (src._imageData == IntPtr.Zero || dst._imageData == IntPtr.Zero)
+            if (src._imageData == null || dst._imageData == null)
                 throw new ArgumentException("src and dst cannot have null pointers");
-            memcpy_s(dst._imageData, (UIntPtr)dst.ImageNB, src._imageData, (UIntPtr)src.ImageNB);
+            memcpy_s((IntPtr)dst._imageData, (UIntPtr)dst.ImageNB, (IntPtr)src._imageData, (UIntPtr)src.ImageNB);
         }
 
         /// <summary>
@@ -246,18 +246,18 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="z">The z-index of the slice</param>
         /// <param name="t">The time-index of the slice</param>
         /// <returns></returns>
-        protected IntPtr SliceStart(int z, int t)
+        protected byte* SliceStart(int z, int t)
         {
             DisposeGuard();
-            if (_imageData == IntPtr.Zero)
-                return IntPtr.Zero;
+            if (_imageData == null)
+                return null;
             if (z < 0 || z >= ZPlanes)
                 throw new ArgumentOutOfRangeException(nameof(z), "Has to be at least 0 and smaller than number of ZPlanes in stack");
             if (t < 0 || t >= TimePoints)
                 throw new ArgumentOutOfRangeException(nameof(t), "Hast to be at least 0 and smaller than the number of TimePoints in stack");
             long sliceBytes = ImageHeight * Stride;
             long numSlices = 0;
-            if(SliceOrder == SliceOrders.TBeforeZ)
+            if (SliceOrder == SliceOrders.TBeforeZ)
             {
                 //First timepoints then z-step
                 numSlices = z * TimePoints + t;
@@ -268,27 +268,7 @@ namespace TwoPAnalyzer.PluginAPI
                 numSlices = t * ZPlanes + z;
             }
             long requiredOffset = sliceBytes * numSlices;
-            //we can only add an int32 to an IntPtr at one time
-            if (requiredOffset <= Int32.MaxValue)
-                return IntPtr.Add(_imageData, (int)requiredOffset);
-            else
-            {
-                IntPtr retval = _imageData;
-                while (true)
-                {
-                    if (requiredOffset > Int32.MaxValue)
-                    {
-                        retval += Int32.MaxValue;
-                        requiredOffset -= Int32.MaxValue;
-                    }
-                    else
-                    {
-                        retval += (int)requiredOffset;
-                        break;
-                    }
-                }
-                return retval;
-            }
+            return _imageData + requiredOffset;
         }
 
         #endregion
@@ -321,10 +301,10 @@ namespace TwoPAnalyzer.PluginAPI
                     //dispose managed state (managed objects).
                 }
 
-                if (_imageData != IntPtr.Zero && !IsShallow)
+                if (_imageData != null && !IsShallow)
                 {
-                    Marshal.FreeHGlobal(_imageData);
-                    _imageData = IntPtr.Zero;
+                    Marshal.FreeHGlobal((IntPtr)_imageData);
+                    _imageData = null;
                     ImageNB = 0;
                 }
 

@@ -309,7 +309,6 @@ namespace TwoPAnalyzer.PluginAPI
         /// <returns></returns>
         protected byte* SliceStart(int z, int t)
         {
-            DisposeGuard();
             if (_imageData == null)
                 return null;
             if (z < 0 || z >= ZPlanes)
@@ -342,7 +341,6 @@ namespace TwoPAnalyzer.PluginAPI
         /// <returns></returns>
         protected byte* PixelStart(int x, int y, int z, int t)
         {
-            DisposeGuard();
             if (_imageData == null)
                 return null;
             if (x < 0 || x >= ImageWidth)

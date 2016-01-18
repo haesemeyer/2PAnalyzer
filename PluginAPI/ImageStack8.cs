@@ -36,5 +36,21 @@ namespace TwoPAnalyzer.PluginAPI
                 return _imageData;
             }
         }
+
+        /// <summary>
+        /// Returns a pointer to the given pixel
+        /// </summary>
+        /// <param name="x">The x-coordinate (column)</param>
+        /// <param name="y">The y-coordinate (row)</param>
+        /// <param name="z">The z-coordinate (ZPlane)</param>
+        /// <param name="t">The t-coordinate (Timesclice)</param>
+        /// <returns></returns>
+        public byte* this[int x, int y, int z = 0, int t = 0]
+        {
+            get
+            {
+                return PixelStart(x, y, z, t);
+            }
+        }
     }
 }

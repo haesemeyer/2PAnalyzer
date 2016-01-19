@@ -104,38 +104,47 @@ namespace TwoPAnalyzer.PluginAPI
 
         /// <summary>
         /// Adds a constant value to each pixel
+        /// clipping at 255 (no wrap-around)
         /// </summary>
         /// <param name="value">The value to add</param>
         public void AddConstant(byte value)
         {
-            //TODO: Clip values at 255 instead of wrap-around
             DisposeGuard();
             //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
             for (long i = 0; i < ImageNB; i++)
+            {
+                byte prev = ImageData[i];
                 ImageData[i] += value;
+                if (ImageData[i] < prev)//indicates that wrap-around occured
+                    ImageData[i] = byte.MaxValue;
+            }
         }
 
         /// <summary>
         /// Subtracts a constant value from each pixel
+        /// clipping at 0 (no wrap-around)
         /// </summary>
         /// <param name="value">The value to subtract</param>
         public void SubConstant(byte value)
         {
-            //TODO: Clip values at 0 instead of wrap-around
             DisposeGuard();
             //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
             for (long i = 0; i < ImageNB; i++)
+            {
+                byte prev = ImageData[i];
                 ImageData[i] -= value;
+                if (ImageData[i] > prev)//indicates that wrap-around occured
+                    ImageData[i] = byte.MinValue;
+            }
         }
 
         /// <summary>
         /// Performs pixel-by-pixel addition of the given image
-        /// stack to the current stack
+        /// stack to the current stack clipping at 255
         /// </summary>
         /// <param name="ims">The stack to add</param>
         public void Add(ImageStack8 ims)
         {
-            //TODO: Clip values at 255 instead of wrap-around
             DisposeGuard();
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't add disposed image");
@@ -149,7 +158,13 @@ namespace TwoPAnalyzer.PluginAPI
                     for (int t = 0; t < TimePoints; t++)
                         for (int y = 0; y < ImageHeight; y++)
                             for (int x = 0; x < ImageWidth; x++)
-                                *this[x, y, z, t] += *ims[x, y, z, t];
+                            {
+                                byte* pixel = this[x, y, z, t];
+                                byte prev = *pixel;
+                                *pixel += *ims[x, y, z, t];
+                                if (*pixel < prev)//indicates that wrap-around occured
+                                    *pixel = byte.MaxValue; 
+                            }
             }
             else
             {
@@ -157,18 +172,23 @@ namespace TwoPAnalyzer.PluginAPI
                     for (int z = 0; z < ZPlanes; z++)
                         for (int y = 0; y < ImageHeight; y++)
                             for (int x = 0; x < ImageWidth; x++)
-                                *this[x, y, z, t] += *ims[x, y, z, t];
+                            {
+                                byte* pixel = this[x, y, z, t];
+                                byte prev = *pixel;
+                                *pixel += *ims[x, y, z, t];
+                                if (*pixel < prev)//indicates that wrap-around occured
+                                    *pixel = byte.MaxValue;
+                            }
             }
         }
 
         /// <summary>
         /// Performs pixel-by-pixel subtraction of the given image
-        /// stack to the current stack
+        /// stack from the current stack clipping at 0
         /// </summary>
         /// <param name="ims">The stack to subtract</param>
         public void Subtract(ImageStack8 ims)
         {
-            //TODO: Clip values at 0 instead of wrap-around
             DisposeGuard();
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't add disposed image");
@@ -182,7 +202,13 @@ namespace TwoPAnalyzer.PluginAPI
                     for (int t = 0; t < TimePoints; t++)
                         for (int y = 0; y < ImageHeight; y++)
                             for (int x = 0; x < ImageWidth; x++)
-                                *this[x, y, z, t] -= *ims[x, y, z, t];
+                            {
+                                byte* pixel = this[x, y, z, t];
+                                byte prev = *pixel;
+                                *pixel -= *ims[x, y, z, t];
+                                if (*pixel > prev)//indicates that wrap-around occured
+                                    *pixel = byte.MinValue;
+                            }
             }
             else
             {
@@ -190,7 +216,13 @@ namespace TwoPAnalyzer.PluginAPI
                     for (int z = 0; z < ZPlanes; z++)
                         for (int y = 0; y < ImageHeight; y++)
                             for (int x = 0; x < ImageWidth; x++)
-                                *this[x, y, z, t] -= *ims[x, y, z, t];
+                            {
+                                byte* pixel = this[x, y, z, t];
+                                byte prev = *pixel;
+                                *pixel -= *ims[x, y, z, t];
+                                if (*pixel > prev)//indicates that wrap-around occured
+                                    *pixel = byte.MinValue;
+                            }
             }
         }
     }

@@ -37,5 +37,21 @@ namespace Tests
             Assert.AreEqual(t, ims.TimePoints, "Number of timepoints not correct.");
             ims.Dispose();
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Construction_WithInvalidWidth()
+        {
+            var ims = new ImageStack8(-20, 30, 40, 50, ImageStack.SliceOrders.TBeforeZ);
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Construction_WithInvalidHeight()
+        {
+            var ims = new ImageStack8(20, 0, 40, 50, ImageStack.SliceOrders.TBeforeZ);
+            ims.Dispose();
+        }
     }
 }

@@ -33,6 +33,14 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="sliceOrder">The ordering of the slices in the stack</param>
         public ImageStack8(int width, int height, int nZ, int nT, ImageStack.SliceOrders sliceOrder)
         {
+            if (width < 1)
+                throw new ArgumentOutOfRangeException(nameof(width), "Has to be 1 or greater.");
+            if (height < 1)
+                throw new ArgumentOutOfRangeException(nameof(height), "Has to be 1 or greater.");
+            if (nZ < 1)
+                throw new ArgumentOutOfRangeException(nameof(nZ), "Has to be 1 or greater.");
+            if (nT < 1)
+                throw new ArgumentOutOfRangeException(nameof(nT), "Has to be 1 or greater.");
             SliceOrder = sliceOrder;
             InitializeImageBuffer(width, height, nZ, nT, 1);
         }

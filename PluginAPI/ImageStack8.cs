@@ -1,4 +1,19 @@
-﻿using System;
+﻿/*
+Copyright 2016 Martin Haesemeyer
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -97,6 +112,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="value">The value to add</param>
         public void AddConstant(byte value)
         {
+            //TODO: Clip values at 255 instead of wrap-around
             DisposeGuard();
             //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
             for (long i = 0; i < ImageNB; i++)
@@ -109,6 +125,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="value">The value to subtract</param>
         public void SubConstant(byte value)
         {
+            //TODO: Clip values at 0 instead of wrap-around
             DisposeGuard();
             //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
             for (long i = 0; i < ImageNB; i++)
@@ -122,6 +139,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="ims">The stack to add</param>
         public void Add(ImageStack8 ims)
         {
+            //TODO: Clip values at 255 instead of wrap-around
             DisposeGuard();
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't add disposed image");
@@ -154,6 +172,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="ims">The stack to subtract</param>
         public void Subtract(ImageStack8 ims)
         {
+            //TODO: Clip values at 0 instead of wrap-around
             DisposeGuard();
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't add disposed image");

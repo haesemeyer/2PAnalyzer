@@ -165,7 +165,7 @@ namespace TwoPAnalyzer.PluginAPI
                 if (value % 4 != 0)
                     System.Diagnostics.Debug.WriteLine("Initialized stride that is not dividable by 4");
 #endif
-                _stride = 0;
+                _stride = value;
             }
         }
 

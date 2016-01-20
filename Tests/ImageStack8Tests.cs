@@ -23,6 +23,10 @@ namespace Tests
     [TestClass]
     public unsafe class ImageStack8Tests
     {
+        private ImageStack8 CreateDefaultStack()
+        {
+            return new ImageStack8(41, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+        }
 
         [TestMethod]
         public void Construction_WithValidArguments_DimCorrect()
@@ -32,10 +36,10 @@ namespace Tests
             int z = 40;
             int t = 50;
             var ims = new ImageStack8(w, h, z, t, ImageStack.SliceOrders.TBeforeZ);
-            Assert.AreEqual(w, ims.ImageWidth, "Image width not correct.");
-            Assert.AreEqual(h, ims.ImageHeight, "Image height not correct.");
-            Assert.AreEqual(z, ims.ZPlanes, "Image z plane number not correct.");
-            Assert.AreEqual(t, ims.TimePoints, "Number of timepoints not correct.");
+            Assert.AreEqual(ims.ImageWidth, w, "Image width not correct.");
+            Assert.AreEqual(ims.ImageHeight, h, "Image height not correct.");
+            Assert.AreEqual(ims.ZPlanes, z, "Image z plane number not correct.");
+            Assert.AreEqual(ims.TimePoints, t, "Number of timepoints not correct.");
             ims.Dispose();
         }
 
@@ -75,13 +79,13 @@ namespace Tests
         [TestMethod]
         public void SetAll_Correct()
         {
-            var ims = new ImageStack8(50, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+            var ims = CreateDefaultStack();
             byte setVal = 25;
             ims.SetAll(setVal);
             byte* imStart = ims.ImageData;
             for (long i = 0; i < ims.ImageNB; i++)
             {
-                Assert.AreEqual(imStart[i], setVal, "Found non-matching pixel");
+                Assert.AreEqual(setVal, imStart[i], "Found non-matching pixel");
             }
             ims.Dispose();
         }
@@ -89,7 +93,7 @@ namespace Tests
         [TestMethod]
         public void CopyConstructor_Correct()
         {
-            var ims = new ImageStack8(50, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+            var ims = CreateDefaultStack();
             ims.SetAll(33);
             var copy = new ImageStack8(ims);
             Assert.IsFalse(ims.ImageData == copy.ImageData,"Source and its copy point to the same buffer");

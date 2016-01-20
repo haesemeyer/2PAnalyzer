@@ -138,35 +138,34 @@ namespace TwoPAnalyzer.PluginAPI
         /// Adds 4 bytes as uints making better use of machine registers
         /// </summary>
         /// <param name="v1">The value to add to</param>
-        /// <param name="v2">The value to add - should be less than 256</param>
+        /// <param name="v2">The value to add to each byte in each byte</param>
         /// <returns>The four bytes after addition without carry-over</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint AddBytesAsUint(uint v1, uint v2)
         {
-            //We implicitely assume that v2<=255, i.e. a byte cast to a uint
             uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
             uint intermediate = 0;//used to clip instead of roll-over when crossing 255
             uint retval = 0;
             //first byte
-            intermediate = (v1 & mask) + v2;
+            intermediate = (v1 & mask) + (v2 & mask);
             if (intermediate < 256)
                 retval = intermediate;
             else
                 retval = mask;
             //second byte
-            intermediate = ((v1 >> 8) & mask) + v2;
+            intermediate = ((v1 >> 8) & mask) + ((v2 >> 8) & mask);
             if (intermediate < 256)
                 retval |= intermediate << 8;
             else
                 retval |= mask << 8;
             //third byte
-            intermediate = ((v1 >> 16) & mask) + v2;
+            intermediate = ((v1 >> 16) & mask) + ((v2 >> 16) & mask);
             if (intermediate < 256)
                 retval |= intermediate << 16;
             else
                 retval |= mask << 16;
             //fourth byte
-            intermediate = ((v1 >> 24) & mask) + v2;
+            intermediate = ((v1 >> 24) & mask) + ((v2 >> 24) & mask);
             if (intermediate < 256)
                 retval |= intermediate << 24;
             else
@@ -182,7 +181,12 @@ namespace TwoPAnalyzer.PluginAPI
         public void AddConstant(byte value)
         {
             DisposeGuard();
-            uint val = value;
+            //populate or addition uint
+            uint val = value;//byte 1
+            val |= (uint)value << 8;//byte 2
+            val |= (uint)value << 16;//byte 3
+            val |= (uint)value << 24;//byte 4
+
             long intIter = ImageNB / 4;
             uint* iData = (uint*)ImageData;
             for(long i = 0;i<intIter;i++)

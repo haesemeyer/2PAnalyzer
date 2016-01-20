@@ -104,5 +104,119 @@ namespace Tests
             ims.Dispose();
             copy.Dispose();
         }
+
+        [TestMethod]
+        public void AddC_Correct()
+        {
+            byte initial = 21;
+            byte add = 35;
+            var ims = CreateDefaultStack();
+            ims.SetAll(initial);
+            ims.AddConstant(add);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(initial + add, image[i], "Pixel addition wrong");
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void AddC_ClipsAt255()
+        {
+            byte initial = 21;
+            byte add = 255;
+            var ims = CreateDefaultStack();
+            ims.SetAll(initial);
+            ims.AddConstant(add);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(255, image[i], "Pixel addition rolls over");
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void SubC_Correct()
+        {
+            byte initial = 21;
+            byte sub = 6;
+            var ims = CreateDefaultStack();
+            ims.SetAll(initial);
+            ims.SubConstant(sub);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(initial - sub, image[i], "Pixel subtraction wrong");
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void SubC_ClipsAt0()
+        {
+            byte initial = 21;
+            byte sub = 255;
+            var ims = CreateDefaultStack();
+            ims.SetAll(initial);
+            ims.SubConstant(sub);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(0, image[i], "Pixel subtraction rolls over");
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ObjectDisposedException))]
+        public void AddCToDisposed_Raises()
+        {
+            var ims = CreateDefaultStack();
+            ims.SetAll(20);
+            ims.Dispose();
+            ims.AddConstant(40);
+        }
+
+        [TestMethod]
+        public void Add_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateDefaultStack();
+            byte val1 = 10;
+            byte val2 = 20;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Add(ims2);
+            byte* image = ims1.ImageData;
+            for (long i = 0; i < ims1.ImageNB; i++)
+            {
+                //as we loop bite-wise rather than pixel-wise, we need to exclude
+                //possible positions within the stride (they don't get updated by image addition unlike
+                //SetAll or AddC
+                if (i % ims1.Stride >= ims1.ImageWidth)
+                    continue;
+                Assert.AreEqual(val1 + val2, image[i], "Image addition failed at position {0}", i);
+            }
+            ims1.Dispose();
+            ims2.Dispose();
+        }
+
+        [TestMethod]
+        public void Sub_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateDefaultStack();
+            byte val1 = 30;
+            byte val2 = 20;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Subtract(ims2);
+            byte* image = ims1.ImageData;
+            for (long i = 0; i < ims1.ImageNB; i++)
+            {
+                //as we loop bite-wise rather than pixel-wise, we need to exclude
+                //possible positions within the stride (they don't get updated by image addition unlike
+                //SetAll or AddC
+                if (i % ims1.Stride >= ims1.ImageWidth)
+                    continue;
+                Assert.AreEqual(val1 - val2, image[i], "Image addition failed at position {0}", i);
+            }
+            ims1.Dispose();
+            ims2.Dispose();
+        }
     }
 }

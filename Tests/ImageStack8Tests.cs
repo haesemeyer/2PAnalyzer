@@ -21,8 +21,9 @@ using TwoPAnalyzer.PluginAPI;
 namespace Tests
 {
     [TestClass]
-    public class ImageStack8Tests
+    public unsafe class ImageStack8Tests
     {
+
         [TestMethod]
         public void Construction_WithValidArguments_DimCorrect()
         {
@@ -51,6 +52,23 @@ namespace Tests
         public void Construction_WithInvalidHeight()
         {
             var ims = new ImageStack8(20, 0, 40, 50, ImageStack.SliceOrders.TBeforeZ);
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void PixelPointerNull_AfterDispose()
+        {
+            var ims = new ImageStack8(5, 5, 5, 5, ImageStack.SliceOrders.ZBeforeT);
+            ims.Dispose();
+            Assert.IsTrue(ims[4, 0, 0, 0]==null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void RangeCheck_OnPixelAccess()
+        {
+            var ims = new ImageStack8(5, 5, 5, 5, ImageStack.SliceOrders.ZBeforeT);
+            var p = ims[5, 0, 0, 0];
             ims.Dispose();
         }
     }

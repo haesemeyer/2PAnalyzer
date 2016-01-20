@@ -231,26 +231,30 @@ namespace TwoPAnalyzer.PluginAPI
             //NOTE: Not clear whether we should require same z/t ordering for compatibility
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
-            //loop over pixels ensuring that data is looped over such that memory accesses
-            //are continuous in order to improve cache performance (z vs. t distinction likely does not matter)
-            if(SliceOrder == SliceOrders.TBeforeZ)
+
+            //if the strides of the two images aren't equal (pixels not aligned in memory) we have
+            //to laboriously loop over individual pixels otherwise we can move through the buffer in 32bit blocks
+            //for all images created using this code stride should always be the same if the width is the same
+            //but we could be dealing with a foreign memory block via shallow copy
+            if (this.Stride == ims.Stride)
             {
-                for (int z = 0; z < ZPlanes; z++)
-                    for (int t = 0; t < TimePoints; t++)
-                        for (int y = 0; y < ImageHeight; y++)
-                            for (int x = 0; x < ImageWidth; x++)
-                            {
-                                byte* pixel = this[x, y, z, t];
-                                byte prev = *pixel;
-                                *pixel += *ims[x, y, z, t];
-                                if (*pixel < prev)//indicates that wrap-around occured
-                                    *pixel = byte.MaxValue; 
-                            }
+                long intIter = ImageNB / 4;
+                uint* iData = (uint*)ImageData;
+                uint* iAdd = (uint*)ims.ImageData;
+                for (long i = 0; i < intIter; i++)
+                {
+                    iData[i] = AddBytesAsUint(iData[i], iAdd[i]);
+                }
+
+                //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+                int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
+                for (long i = ImageNB - restIter; i < ImageNB; i++)
+                    ImageData[i] += ims.ImageData[i];
             }
             else
             {
-                for (int t = 0; t < TimePoints; t++)
-                    for (int z = 0; z < ZPlanes; z++)
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
                         for (int y = 0; y < ImageHeight; y++)
                             for (int x = 0; x < ImageWidth; x++)
                             {

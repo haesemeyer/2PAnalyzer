@@ -14,6 +14,7 @@ Copyright 2016 Martin Haesemeyer
    limitations under the License.
 */
 using System;
+using System.Runtime.CompilerServices;
 
 namespace TwoPAnalyzer.PluginAPI
 {
@@ -124,6 +125,46 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Adds 4 bytes as uints making better use of machine registers
+        /// </summary>
+        /// <param name="v1">The value to add to</param>
+        /// <param name="v2">The value to add - should be less than 256</param>
+        /// <returns>The four bytes after addition without carry-over</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint AddBytesAsUint(uint v1, uint v2)
+        {
+            //We implicitely assume that v2<=255, i.e. a byte cast to a uint
+            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
+            uint intermediate = 0;//used to clip instead of roll-over when crossing 255
+            uint retval = 0;
+            //first byte
+            intermediate = (v1 & mask) + v2;
+            if (intermediate < 256)
+                retval = intermediate;
+            else
+                retval = mask;
+            //second byte
+            intermediate = ((v1 >> 8) & mask) + v2;
+            if (intermediate < 256)
+                retval |= intermediate << 8;
+            else
+                retval |= mask << 8;
+            //third byte
+            intermediate = ((v1 >> 16) & mask) + v2;
+            if (intermediate < 256)
+                retval |= intermediate << 16;
+            else
+                retval |= mask << 16;
+            //fourth byte
+            intermediate = ((v1 >> 24) & mask) + v2;
+            if (intermediate < 256)
+                retval |= intermediate << 24;
+            else
+                retval |= mask << 24;
+            return retval;
+        }
+
+        /// <summary>
         /// Adds a constant value to each pixel
         /// clipping at 255 (no wrap-around)
         /// </summary>
@@ -132,39 +173,11 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             uint val = value;
-            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 = 255
-            uint intermediate = 0;
             long intIter = ImageNB / 4;
             uint* iData = (uint*)ImageData;
             for(long i = 0;i<intIter;i++)
             {
-                uint prev = iData[i];
-                uint curr = 0;
-                //first byte
-                intermediate = (prev & mask) + val;
-                if (intermediate < 256)
-                    curr = intermediate;
-                else
-                    curr = mask;
-                //second byte
-                intermediate = ((prev >> 8) & mask) + val;
-                if (intermediate < 256)
-                    curr = curr | (intermediate << 8);
-                else
-                    curr = curr | (mask << 8);
-                //third byte
-                intermediate = ((prev >> 16) & mask) + val;
-                if (intermediate < 256)
-                    curr = curr | (intermediate << 16);
-                else
-                    curr = curr | (mask << 16);
-                //fourth byte
-                intermediate = ((prev >> 24) & mask) + val;
-                if (intermediate < 256)
-                    curr = curr | (intermediate << 24);
-                else
-                    curr = curr | (mask << 24);
-                iData[i] = curr;
+                iData[i] = AddBytesAsUint(iData[i], val);
             }
 
             //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride

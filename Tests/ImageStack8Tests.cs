@@ -85,5 +85,19 @@ namespace Tests
             }
             ims.Dispose();
         }
+
+        [TestMethod]
+        public void CopyConstructor_Correct()
+        {
+            var ims = new ImageStack8(50, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+            var copy = new ImageStack8(ims);
+            Assert.IsFalse(ims.ImageData == copy.ImageData,"Source and its copy point to the same buffer");
+            byte* sourceStart = ims.ImageData;
+            byte* copyStart = copy.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(sourceStart[i], copyStart[i], "Found non-matching pixel");
+            ims.Dispose();
+            copy.Dispose();
+        }
     }
 }

@@ -224,8 +224,9 @@ namespace TwoPAnalyzer.PluginAPI
             DisposeGuard();
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't add disposed image");
+            //NOTE: Not clear whether we should require same z/t ordering for compatibility
             if (!IsCompatible(ims))
-                throw new ArgumentException("Given image has wrong dimensions");
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             //loop over pixels ensuring that data is looped over such that memory accesses
             //are continuous in order to improve cache performance (z vs. t distinction likely does not matter)
             if(SliceOrder == SliceOrders.TBeforeZ)
@@ -269,7 +270,7 @@ namespace TwoPAnalyzer.PluginAPI
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't add disposed image");
             if (!IsCompatible(ims))
-                throw new ArgumentException("Given image has wrong dimensions");
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             //loop over pixels ensuring that data is looped over such that memory accesses
             //are continuous in order to improve cache performance (z vs. t distinction likely does not matter)
             if (SliceOrder == SliceOrders.TBeforeZ)

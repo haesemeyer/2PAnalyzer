@@ -191,6 +191,11 @@ namespace TwoPAnalyzer.PluginAPI
             //free old image data if necessary
             FreeImageData();
             _imageData = (byte*)Marshal.AllocHGlobal(size);
+#if DEBUG
+            //check whether pointer is aligned to 4-byte boundary
+            if ((long)_imageData % 4 != 0)
+                System.Diagnostics.Debug.WriteLine("Image buffer start not aligned to 4-byte boundary");
+#endif
             ImageNB = (long)size;
             IsShallow = false;
         }

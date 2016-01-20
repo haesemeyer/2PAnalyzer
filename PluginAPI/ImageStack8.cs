@@ -105,8 +105,21 @@ namespace TwoPAnalyzer.PluginAPI
         public void SetAll(byte value)
         {
             DisposeGuard();
-            //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
-            for (long i = 0; i < ImageNB; i++)
+            //For performance set as integers not bytes
+            //NOTE: We implicitely assume that ImageData is aligned to a 4byte-boundary
+            uint element = 0;
+            uint val = value;
+            element = value;//lowest byte set
+            element |= val << 8;//second byte set
+            element |= val << 16;//third byte set
+            element |= val << 24;//most significant byte set
+            long intIter = ImageNB / 4;
+            //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+            int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
+            uint* iData = (uint*)ImageData;
+            for (long i = 0; i < intIter; i++)
+                iData[i] = element;
+            for (long i = ImageNB - restIter; i < ImageNB; i++)
                 ImageData[i] = value;
         }
 

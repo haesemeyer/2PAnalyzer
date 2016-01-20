@@ -73,7 +73,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void SetPixelValue_Correct()
+        public void SetAll_Correct()
         {
             var ims = new ImageStack8(50, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
             byte setVal = 25;

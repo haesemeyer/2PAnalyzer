@@ -131,14 +131,46 @@ namespace TwoPAnalyzer.PluginAPI
         public void AddConstant(byte value)
         {
             DisposeGuard();
-            //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
-            for (long i = 0; i < ImageNB; i++)
+            uint val = value;
+            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 = 255
+            uint intermediate = 0;
+            long intIter = ImageNB / 4;
+            uint* iData = (uint*)ImageData;
+            for(long i = 0;i<intIter;i++)
             {
-                byte prev = ImageData[i];
-                ImageData[i] += value;
-                if (ImageData[i] < prev)//indicates that wrap-around occured
-                    ImageData[i] = byte.MaxValue;
+                uint prev = iData[i];
+                uint curr = 0;
+                //first byte
+                intermediate = (prev & mask) + val;
+                if (intermediate < 256)
+                    curr = intermediate;
+                else
+                    curr = mask;
+                //second byte
+                intermediate = ((prev >> 8) & mask) + val;
+                if (intermediate < 256)
+                    curr = curr | (intermediate << 8);
+                else
+                    curr = curr | (mask << 8);
+                //third byte
+                intermediate = ((prev >> 16) & mask) + val;
+                if (intermediate < 256)
+                    curr = curr | (intermediate << 16);
+                else
+                    curr = curr | (mask << 16);
+                //fourth byte
+                intermediate = ((prev >> 24) & mask) + val;
+                if (intermediate < 256)
+                    curr = curr | (intermediate << 24);
+                else
+                    curr = curr | (mask << 24);
+                iData[i] = curr;
             }
+
+            //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+            int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
+            for (long i = ImageNB - restIter; i < ImageNB; i++)
+                ImageData[i] += value;
         }
 
         /// <summary>

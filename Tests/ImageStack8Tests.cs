@@ -90,6 +90,7 @@ namespace Tests
         public void CopyConstructor_Correct()
         {
             var ims = new ImageStack8(50, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+            ims.SetAll(33);
             var copy = new ImageStack8(ims);
             Assert.IsFalse(ims.ImageData == copy.ImageData,"Source and its copy point to the same buffer");
             byte* sourceStart = ims.ImageData;

@@ -92,7 +92,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// <summary>
         /// The size of the image buffer in bytes
         /// </summary>
-        protected long ImageNB { get; private set; }
+        public long ImageNB { get; private set; }
 
         /// <summary>
         /// The image width in pixels

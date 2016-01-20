@@ -79,7 +79,7 @@ namespace Tests
             byte setVal = 25;
             ims.SetAll(setVal);
             byte* imStart = ims.ImageData;
-            for (int i = 0; i < ims.Stride * ims.ImageHeight * ims.ZPlanes * ims.TimePoints; i++)
+            for (long i = 0; i < ims.ImageNB; i++)
             {
                 Assert.AreEqual(imStart[i], setVal, "Found non-matching pixel");
             }

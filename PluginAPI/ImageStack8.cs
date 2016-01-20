@@ -24,6 +24,8 @@ namespace TwoPAnalyzer.PluginAPI
     /// </summary>
     public unsafe class ImageStack8 : ImageStack
     {
+        #region Construction
+
         /// <summary>
         /// Constructs a new ImageStack8
         /// </summary>
@@ -72,6 +74,10 @@ namespace TwoPAnalyzer.PluginAPI
             InitializeShallow(imageData, width, stride, height, nZ, nT, sliceOrder, 1);
         }
 
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// Pointer to the start of the image buffer
         /// </summary>
@@ -98,6 +104,10 @@ namespace TwoPAnalyzer.PluginAPI
                 return PixelStart(x, y, z, t);
             }
         }
+
+        #endregion
+
+        #region Method
 
         /// <summary>
         /// Sets every pixel to the indicated value
@@ -291,5 +301,7 @@ namespace TwoPAnalyzer.PluginAPI
                             }
             }
         }
+
+        #endregion
     }
 }

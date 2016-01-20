@@ -71,5 +71,19 @@ namespace Tests
             var p = ims[5, 0, 0, 0];
             ims.Dispose();
         }
+
+        [TestMethod]
+        public void SetPixelValue_Correct()
+        {
+            var ims = new ImageStack8(50, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+            byte setVal = 25;
+            ims.SetAll(setVal);
+            byte* imStart = ims.ImageData;
+            for (int i = 0; i < ims.Stride * ims.ImageHeight * ims.ZPlanes * ims.TimePoints; i++)
+            {
+                Assert.AreEqual(imStart[i], setVal, "Found non-matching pixel");
+            }
+            ims.Dispose();
+        }
     }
 }

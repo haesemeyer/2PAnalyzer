@@ -196,6 +196,30 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Add_ClipsAt255()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateDefaultStack();
+            byte val1 = 10;
+            byte val2 = 255;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Add(ims2);
+            byte* image = ims1.ImageData;
+            for (long i = 0; i < ims1.ImageNB; i++)
+            {
+                //as we loop bite-wise rather than pixel-wise, we need to exclude
+                //possible positions within the stride (they don't get updated by image addition unlike
+                //SetAll or AddC
+                if (i % ims1.Stride >= ims1.ImageWidth)
+                    continue;
+                Assert.AreEqual(255, image[i], "Image addition wrapped around at position {0}", i);
+            }
+            ims1.Dispose();
+            ims2.Dispose();
+        }
+
+        [TestMethod]
         public void Sub_Correct()
         {
             var ims1 = CreateDefaultStack();

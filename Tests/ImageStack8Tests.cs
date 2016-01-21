@@ -403,6 +403,66 @@ namespace Tests
             ims.Dispose();
         }
 
+        [TestMethod]
+        public void Multiply_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateDefaultStack();
+            byte val1 = 15;
+            byte val2 = 13;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Multiply(ims2);
+            CompareValImage((byte)(val1 * val2), ims1);
+            ims1.Dispose();
+            ims2.Dispose();
+        }
 
+        [TestMethod]
+        public void StrideMismatch_Multiply_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateOffStrideStack();
+            byte val1 = 15;
+            byte val2 = 13;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Multiply(ims2);
+            CompareValImage((byte)(val1 * val2), ims1);
+            ims1.Dispose();
+            Marshal.FreeHGlobal((IntPtr)ims2.ImageData);
+            ims2.Dispose();
+        }
+
+        [TestMethod]
+        public void Multiply_ClipsAt255()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateDefaultStack();
+            byte val1 = 10;
+            byte val2 = 255;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Multiply(ims2);
+            CompareValImage(255, ims1);
+            ims1.Dispose();
+            ims2.Dispose();
+        }
+
+        [TestMethod]
+        public void StrideMismatch_Multiply_ClipsAt255()
+        {
+            var ims1 = CreateOffStrideStack();
+            var ims2 = CreateDefaultStack();
+            byte val1 = 10;
+            byte val2 = 255;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Multiply(ims2);
+            CompareValImage(255, ims1);
+            Marshal.FreeHGlobal((IntPtr)ims1.ImageData);
+            ims1.Dispose();
+            ims2.Dispose();
+        }
     }
 }

@@ -110,31 +110,6 @@ namespace TwoPAnalyzer.PluginAPI
         #region Method
 
         /// <summary>
-        /// Sets every pixel to the indicated value
-        /// </summary>
-        /// <param name="value">The new value of every pixel</param>
-        public void SetAll(byte value)
-        {
-            DisposeGuard();
-            //For performance set as integers not bytes
-            //NOTE: We implicitely assume that ImageData is aligned to a 4byte-boundary
-            uint element = 0;
-            uint val = value;
-            element = value;//lowest byte set
-            element |= val << 8;//second byte set
-            element |= val << 16;//third byte set
-            element |= val << 24;//most significant byte set
-            long intIter = ImageNB / 4;
-            //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-            int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
-            uint* iData = (uint*)ImageData;
-            for (long i = 0; i < intIter; i++)
-                iData[i] = element;
-            for (long i = ImageNB - restIter; i < ImageNB; i++)
-                ImageData[i] = value;
-        }
-
-        /// <summary>
         /// Adds 4 bytes as uints making better use of machine registers
         /// </summary>
         /// <param name="v1">The value to add to</param>
@@ -174,6 +149,62 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Subtract 4 bytes as uints making better use of machine registers
+        /// </summary>
+        /// <param name="v1">The value to subtact from</param>
+        /// <param name="v2">The value to subtract from each byte in each byte</param>
+        /// <returns>The four bytes after subtraction without carry-over</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint SubBytesAsUint(uint v1, uint v2)
+        {
+            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
+            uint intermediate = 0;//used to clip instead of roll-over when crossing 0
+            uint retval = 0;
+            //first byte
+            intermediate = (v1 & mask) - (v2 & mask);
+            if (intermediate < 256)//detect carry over, by bleeding into the most significant bit creating a large value
+                retval = intermediate;//else would or with 0
+            //second byte
+            intermediate = ((v1 >> 8) & mask) - ((v2 >> 8) & mask);
+            if (intermediate < 256)
+                retval |= intermediate << 8;
+            //third byte
+            intermediate = ((v1 >> 16) & mask) - ((v2 >> 16) & mask);
+            if (intermediate < 256)
+                retval |= intermediate << 16;
+            //fourth byte
+            intermediate = ((v1 >> 24) & mask) - ((v2 >> 24) & mask);
+            if (intermediate < 256)
+                retval |= intermediate << 24;
+            return retval;
+        }
+
+        /// <summary>
+        /// Sets every pixel to the indicated value
+        /// </summary>
+        /// <param name="value">The new value of every pixel</param>
+        public void SetAll(byte value)
+        {
+            DisposeGuard();
+            //For performance set as integers not bytes
+            //NOTE: We implicitely assume that ImageData is aligned to a 4byte-boundary
+            uint element = 0;
+            uint val = value;
+            element = value;//lowest byte set
+            element |= val << 8;//second byte set
+            element |= val << 16;//third byte set
+            element |= val << 24;//most significant byte set
+            long intIter = ImageNB / 4;
+            //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+            int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
+            uint* iData = (uint*)ImageData;
+            for (long i = 0; i < intIter; i++)
+                iData[i] = element;
+            for (long i = ImageNB - restIter; i < ImageNB; i++)
+                ImageData[i] = value;
+        }
+
+        /// <summary>
         /// Adds a constant value to each pixel
         /// clipping at 255 (no wrap-around)
         /// </summary>
@@ -197,7 +228,12 @@ namespace TwoPAnalyzer.PluginAPI
             //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
             int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
             for (long i = ImageNB - restIter; i < ImageNB; i++)
+            {
+                byte prev = ImageData[i];
                 ImageData[i] += value;
+                if (ImageData[i] < prev)
+                    ImageData[i] = 255;
+            }
         }
 
         /// <summary>
@@ -208,13 +244,27 @@ namespace TwoPAnalyzer.PluginAPI
         public void SubConstant(byte value)
         {
             DisposeGuard();
-            //NOTE: We could have a check of i%ImageWidth here to avoid setting bytes within the stride
-            for (long i = 0; i < ImageNB; i++)
+            //populate our subtraction uint
+            uint val = value;//byte 1
+            val |= (uint)value << 8;//byte 2
+            val |= (uint)value << 16;//byte 3
+            val |= (uint)value << 24;//byte 4
+
+            long intIter = ImageNB / 4;
+            uint* iData = (uint*)ImageData;
+            for (long i = 0; i < intIter; i++)
+            {
+                iData[i] = SubBytesAsUint(iData[i], val);
+            }
+
+            //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+            int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
+            for (long i = ImageNB - restIter; i < ImageNB; i++)
             {
                 byte prev = ImageData[i];
                 ImageData[i] -= value;
-                if (ImageData[i] > prev)//indicates that wrap-around occured
-                    ImageData[i] = byte.MinValue;
+                if (ImageData[i] > prev)
+                    ImageData[i] = 0;
             }
         }
 
@@ -249,7 +299,12 @@ namespace TwoPAnalyzer.PluginAPI
                 //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
                 int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
                 for (long i = ImageNB - restIter; i < ImageNB; i++)
+                {
+                    byte prev = ImageData[i];
                     ImageData[i] += ims.ImageData[i];
+                    if (ImageData[i] < prev)
+                        ImageData[i] = 255;
+                }
             }
             else
             {

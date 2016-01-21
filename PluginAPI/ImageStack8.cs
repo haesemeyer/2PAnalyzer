@@ -231,13 +231,13 @@ namespace TwoPAnalyzer.PluginAPI
             uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
             uint retval = 0;
             //first byte
-            retval = (value & mask) * (div & mask);
+            retval = (value & mask) / (div & mask);
             //second byte
-            retval |= (((value >> 8) & mask) * ((div >> 8) & mask)) << 8;
+            retval |= (((value >> 8) & mask) / ((div >> 8) & mask)) << 8;
             //third byte
-            retval |= (((value >> 16) & mask) * ((div >> 16) & mask)) << 16;
+            retval |= (((value >> 16) & mask) / ((div >> 16) & mask)) << 16;
             //fourth byte
-            retval |= (((value >> 24) & mask) * ((div >> 24) & mask)) << 24;
+            retval |= (((value >> 24) & mask) / ((div >> 24) & mask)) << 24;
             return retval;
         }
 

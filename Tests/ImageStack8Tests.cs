@@ -464,5 +464,36 @@ namespace Tests
             ims1.Dispose();
             ims2.Dispose();
         }
+
+        [TestMethod]
+        public void Divide_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateDefaultStack();
+            byte val1 = 150;
+            byte val2 = 13;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Divide(ims2);
+            CompareValImage((byte)(val1 / val2), ims1);
+            ims1.Dispose();
+            ims2.Dispose();
+        }
+
+        [TestMethod]
+        public void StrideMismatch_Divide_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateOffStrideStack();
+            byte val1 = 150;
+            byte val2 = 13;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Divide(ims2);
+            CompareValImage((byte)(val1 / val2), ims1);
+            ims1.Dispose();
+            Marshal.FreeHGlobal((IntPtr)ims2.ImageData);
+            ims2.Dispose();
+        }
     }
 }

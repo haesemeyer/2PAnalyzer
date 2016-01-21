@@ -541,6 +541,52 @@ namespace TwoPAnalyzer.PluginAPI
             }
         }
 
+        /// <summary>
+        /// Performs pixel-by-pixel division of the given image
+        /// stack to the current stack clipping at 255
+        /// </summary>
+        /// <param name="ims">The stack to divide by element-wise</param>
+        public void Divide(ImageStack8 ims)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+
+            //if the strides of the two images aren't equal (pixels not aligned in memory) we have
+            //to laboriously loop over individual pixels otherwise we can move through the buffer in 32bit blocks
+            //for all images created using this code stride should always be the same if the width is the same
+            //but we could be dealing with a foreign memory block via shallow copy
+            if (this.Stride == ims.Stride)
+            {
+                long intIter = ImageNB / 4;
+                uint* iData = (uint*)ImageData;
+                uint* iDiv = (uint*)ims.ImageData;
+                for (long i = 0; i < intIter; i++)
+                {
+                    iData[i] = DivBytesAsUint(iData[i], iDiv[i]);
+                }
+
+                //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+                int restIter = (int)(ImageNB % 4);
+                for (long i = ImageNB - restIter; i < ImageNB; i++)
+                {
+                    ImageData[i] /= ims.ImageData[i];
+                }
+            }
+            else
+            {
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                            {
+                                *this[x, y, z, t] /= *ims[x, y, z, t];//no chance of roll-over on this division
+                            }
+            }
+        }
+
         #endregion
     }
 }

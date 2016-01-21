@@ -180,6 +180,68 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Multiplies 4 bytes as uints making better use of machine registers
+        /// </summary>
+        /// <param name="value">The value to multiply</param>
+        /// <param name="mul">The multiplicant</param>
+        /// <returns>The four bytes after multiplication without carry-over</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint MulBytesAsUint(uint value, uint mul)
+        {
+            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
+            uint intermediate = 0;//used to clip instead of roll-over when crossing 255
+            uint retval = 0;
+            //first byte
+            intermediate = (value & mask) * (mul & mask);
+            if (intermediate < 256)
+                retval = intermediate;
+            else
+                retval = mask;
+            //second byte
+            intermediate = ((value >> 8) & mask) * ((mul >> 8) & mask);
+            if (intermediate < 256)
+                retval |= intermediate << 8;
+            else
+                retval |= mask << 8;
+            //third byte
+            intermediate = ((value >> 16) & mask) * ((mul >> 16) & mask);
+            if (intermediate < 256)
+                retval |= intermediate << 16;
+            else
+                retval |= mask << 16;
+            //fourth byte
+            intermediate = ((value >> 24) & mask) * ((mul >> 24) & mask);
+            if (intermediate < 256)
+                retval |= intermediate << 24;
+            else
+                retval |= mask << 24;
+            return retval;
+        }
+
+        /// <summary>
+        /// Divides 4 bytes as uints making better use of machine registers
+        /// </summary>
+        /// <param name="value">The value to divide</param>
+        /// <param name="div">The divisor</param>
+        /// <returns>The four bytes after divison</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint DivBytesAsUint(uint value, uint div)
+        {
+            //For division we don't have to take care of crossing 0
+            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
+            uint retval = 0;
+            //first byte
+            retval = (value & mask) * (div & mask);
+            //second byte
+            retval |= (((value >> 8) & mask) * ((div >> 8) & mask)) << 8;
+            //third byte
+            retval |= (((value >> 16) & mask) * ((div >> 16) & mask)) << 16;
+            //fourth byte
+            retval |= (((value >> 24) & mask) * ((div >> 24) & mask)) << 24;
+            return retval;
+        }
+
+        /// <summary>
         /// Sets every pixel to the indicated value
         /// </summary>
         /// <param name="value">The new value of every pixel</param>

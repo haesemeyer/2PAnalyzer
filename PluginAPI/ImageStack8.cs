@@ -242,6 +242,21 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Replicates a byte four times to fill
+        /// unsigned integer
+        /// </summary>
+        /// <param name="value">The value to replicate</param>
+        /// <returns>A u-int with 4 representations of value</returns>
+        private uint ByteToUint(byte value)
+        {
+            uint val = value;//byte 1
+            val |= (uint)value << 8;//byte 2
+            val |= (uint)value << 16;//byte 3
+            val |= (uint)value << 24;//byte 4
+            return val;
+        }
+
+        /// <summary>
         /// Sets every pixel to the indicated value
         /// </summary>
         /// <param name="value">The new value of every pixel</param>
@@ -250,12 +265,7 @@ namespace TwoPAnalyzer.PluginAPI
             DisposeGuard();
             //For performance set as integers not bytes
             //NOTE: We implicitely assume that ImageData is aligned to a 4byte-boundary
-            uint element = 0;
-            uint val = value;
-            element = value;//lowest byte set
-            element |= val << 8;//second byte set
-            element |= val << 16;//third byte set
-            element |= val << 24;//most significant byte set
+            uint element = ByteToUint(value);
             long intIter = ImageNB / 4;
             //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
             int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
@@ -275,10 +285,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             //populate or addition uint
-            uint val = value;//byte 1
-            val |= (uint)value << 8;//byte 2
-            val |= (uint)value << 16;//byte 3
-            val |= (uint)value << 24;//byte 4
+            uint val = ByteToUint(value);
 
             long intIter = ImageNB / 4;
             uint* iData = (uint*)ImageData;
@@ -307,10 +314,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             //populate our subtraction uint
-            uint val = value;//byte 1
-            val |= (uint)value << 8;//byte 2
-            val |= (uint)value << 16;//byte 3
-            val |= (uint)value << 24;//byte 4
+            uint val = ByteToUint(value);
 
             long intIter = ImageNB / 4;
             uint* iData = (uint*)ImageData;

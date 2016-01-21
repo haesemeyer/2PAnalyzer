@@ -352,5 +352,34 @@ namespace Tests
             Marshal.FreeHGlobal((IntPtr)ims2.ImageData);
             ims2.Dispose();
         }
+
+        [TestMethod]
+        public void MulC_Correct()
+        {
+            //Normal stride
+            var ims = CreateDefaultStack();
+            byte value = 20;
+            byte mult = 7;
+            ims.SetAll(value);
+            ims.MulConstant(mult);
+            CompareValImage((byte)(value * mult), ims);
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void OffStride_MulC_Correct()
+        {
+            //Normal stride
+            var ims = CreateOffStrideStack();
+            byte value = 20;
+            byte mult = 7;
+            ims.SetAll(value);
+            ims.MulConstant(mult);
+            CompareValImage((byte)(value * mult), ims);
+            Marshal.FreeHGlobal((IntPtr)ims.ImageData);
+            ims.Dispose();
+        }
+
+        
     }
 }

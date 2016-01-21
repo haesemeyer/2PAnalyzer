@@ -587,6 +587,31 @@ namespace TwoPAnalyzer.PluginAPI
             }
         }
 
+        public void FindMinMax(out byte minimum, out byte maximum)
+        {
+            minimum = byte.MaxValue;
+            maximum = byte.MinValue;
+            //scan in 32-bit increments
+            long intIter = ImageNB / 4;
+            uint* iData = (uint*)ImageData;
+            for(long i = 0; i<intIter;i++)
+            {
+                //NOTE: Do not compare within padding bytes!
+            }
+            int restIter = (int)(ImageNB % 4);
+            for(long i = ImageNB - restIter;i<ImageNB;i++)
+            {
+                //Do not compare within padding bytes!
+                if (i % Stride >= ImageWidth)
+                    continue;
+                if (ImageData[i] > maximum)
+                    maximum = ImageData[i];
+                if (ImageData[i] < minimum)
+                    minimum = ImageData[i];
+            }
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

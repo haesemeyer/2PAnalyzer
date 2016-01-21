@@ -14,6 +14,7 @@ Copyright 2016 Martin Haesemeyer
    limitations under the License.
 */
 using System;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using TwoPAnalyzer.PluginAPI;
@@ -25,7 +26,13 @@ namespace Tests
     {
         private ImageStack8 CreateDefaultStack()
         {
-            return new ImageStack8(41, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+            return new ImageStack8(41, 41, 41, 41, ImageStack.SliceOrders.TBeforeZ);
+        }
+
+        private ImageStack8 CreateOffStrideStack()
+        {
+            byte* buffer = (byte*)Marshal.AllocHGlobal(41 * 41 * 41 * 41);
+            return new ImageStack8(buffer, 41, 41, 41, 41, 41, ImageStack.SliceOrders.TBeforeZ);
         }
 
         [TestMethod]
@@ -120,6 +127,21 @@ namespace Tests
         }
 
         [TestMethod]
+        public void OffStride_AddC_Correct()
+        {
+            byte initial = 21;
+            byte add = 35;
+            var ims = CreateOffStrideStack();
+            ims.SetAll(initial);
+            ims.AddConstant(add);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(initial + add, image[i], "Pixel addition wrong");
+            Marshal.FreeHGlobal((IntPtr)ims.ImageData);
+            ims.Dispose();
+        }
+
+        [TestMethod]
         public void AddC_ClipsAt255()
         {
             byte initial = 21;
@@ -130,6 +152,21 @@ namespace Tests
             byte* image = ims.ImageData;
             for (long i = 0; i < ims.ImageNB; i++)
                 Assert.AreEqual(255, image[i], "Pixel addition rolls over");
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void OffStride_AddC_ClipsAt255()
+        {
+            byte initial = 21;
+            byte add = 255;
+            var ims = CreateOffStrideStack();
+            ims.SetAll(initial);
+            ims.AddConstant(add);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(255, image[i], "Pixel addition rolls over");
+            Marshal.FreeHGlobal((IntPtr)ims.ImageData);
             ims.Dispose();
         }
 
@@ -148,6 +185,21 @@ namespace Tests
         }
 
         [TestMethod]
+        public void OffStride_SubC_Correct()
+        {
+            byte initial = 21;
+            byte sub = 6;
+            var ims = CreateOffStrideStack();
+            ims.SetAll(initial);
+            ims.SubConstant(sub);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(initial - sub, image[i], "Pixel subtraction wrong");
+            Marshal.FreeHGlobal((IntPtr)ims.ImageData);
+            ims.Dispose();
+        }
+
+        [TestMethod]
         public void SubC_ClipsAt0()
         {
             byte initial = 21;
@@ -158,6 +210,21 @@ namespace Tests
             byte* image = ims.ImageData;
             for (long i = 0; i < ims.ImageNB; i++)
                 Assert.AreEqual(0, image[i], "Pixel subtraction rolls over");
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void OffStride_SubC_ClipsAt0()
+        {
+            byte initial = 21;
+            byte sub = 255;
+            var ims = CreateOffStrideStack();
+            ims.SetAll(initial);
+            ims.SubConstant(sub);
+            byte* image = ims.ImageData;
+            for (long i = 0; i < ims.ImageNB; i++)
+                Assert.AreEqual(0, image[i], "Pixel subtraction rolls over");
+            Marshal.FreeHGlobal((IntPtr)ims.ImageData);
             ims.Dispose();
         }
 
@@ -196,6 +263,31 @@ namespace Tests
         }
 
         [TestMethod]
+        public void StrideMismatch_Add_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateOffStrideStack();
+            byte val1 = 10;
+            byte val2 = 20;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Add(ims2);
+            byte* image = ims1.ImageData;
+            for (long i = 0; i < ims1.ImageNB; i++)
+            {
+                //as we loop bite-wise rather than pixel-wise, we need to exclude
+                //possible positions within the stride (they don't get updated by image addition unlike
+                //SetAll or AddC
+                if (i % ims1.Stride >= ims1.ImageWidth)
+                    continue;
+                Assert.AreEqual(val1 + val2, image[i], "Image addition failed at position {0}", i);
+            }
+            ims1.Dispose();
+            Marshal.FreeHGlobal((IntPtr)ims2.ImageData);
+            ims2.Dispose();
+        }
+
+        [TestMethod]
         public void Add_ClipsAt255()
         {
             var ims1 = CreateDefaultStack();
@@ -220,6 +312,32 @@ namespace Tests
         }
 
         [TestMethod]
+        public void OffStride_Add_ClipsAt255()
+        {
+            var ims1 = CreateOffStrideStack();
+            var ims2 = CreateOffStrideStack();
+            byte val1 = 10;
+            byte val2 = 255;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Add(ims2);
+            byte* image = ims1.ImageData;
+            for (long i = 0; i < ims1.ImageNB; i++)
+            {
+                //as we loop bite-wise rather than pixel-wise, we need to exclude
+                //possible positions within the stride (they don't get updated by image addition unlike
+                //SetAll or AddC
+                if (i % ims1.Stride >= ims1.ImageWidth)
+                    continue;
+                Assert.AreEqual(255, image[i], "Image addition wrapped around at position {0}", i);
+            }
+            Marshal.FreeHGlobal((IntPtr)ims1.ImageData);
+            ims1.Dispose();
+            Marshal.FreeHGlobal((IntPtr)ims2.ImageData);
+            ims2.Dispose();
+        }
+
+        [TestMethod]
         public void Sub_Correct()
         {
             var ims1 = CreateDefaultStack();
@@ -240,6 +358,57 @@ namespace Tests
                 Assert.AreEqual(val1 - val2, image[i], "Image addition failed at position {0}", i);
             }
             ims1.Dispose();
+            ims2.Dispose();
+        }
+
+        [TestMethod]
+        public void StrideMismatch_Sub_Correct()
+        {
+            var ims1 = CreateDefaultStack();
+            var ims2 = CreateOffStrideStack();
+            byte val1 = 30;
+            byte val2 = 20;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Subtract(ims2);
+            byte* image = ims1.ImageData;
+            for (long i = 0; i < ims1.ImageNB; i++)
+            {
+                //as we loop bite-wise rather than pixel-wise, we need to exclude
+                //possible positions within the stride (they don't get updated by image addition unlike
+                //SetAll or AddC
+                if (i % ims1.Stride >= ims1.ImageWidth)
+                    continue;
+                Assert.AreEqual(val1 - val2, image[i], "Image addition failed at position {0}", i);
+            }
+            ims1.Dispose();
+            Marshal.FreeHGlobal((IntPtr)ims2.ImageData);
+            ims2.Dispose();
+        }
+
+        [TestMethod]
+        public void OffStride_Sub_ClipsAt0()
+        {
+            var ims1 = CreateOffStrideStack();
+            var ims2 = CreateOffStrideStack();
+            byte val1 = 10;
+            byte val2 = 255;
+            ims1.SetAll(val1);
+            ims2.SetAll(val2);
+            ims1.Subtract(ims2);
+            byte* image = ims1.ImageData;
+            for (long i = 0; i < ims1.ImageNB; i++)
+            {
+                //as we loop bite-wise rather than pixel-wise, we need to exclude
+                //possible positions within the stride (they don't get updated by image addition unlike
+                //SetAll or AddC
+                if (i % ims1.Stride >= ims1.ImageWidth)
+                    continue;
+                Assert.AreEqual(0, image[i], "Image addition wrapped around at position {0}", i);
+            }
+            Marshal.FreeHGlobal((IntPtr)ims1.ImageData);
+            ims1.Dispose();
+            Marshal.FreeHGlobal((IntPtr)ims2.ImageData);
             ims2.Dispose();
         }
     }

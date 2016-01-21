@@ -334,21 +334,25 @@ namespace TwoPAnalyzer.PluginAPI
                 throw new ArgumentException("Can't add disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
-            //loop over pixels ensuring that data is looped over such that memory accesses
-            //are continuous in order to improve cache performance (z vs. t distinction likely does not matter)
-            if (SliceOrder == SliceOrders.TBeforeZ)
+            if (this.Stride == ims.Stride)
             {
-                for (int z = 0; z < ZPlanes; z++)
-                    for (int t = 0; t < TimePoints; t++)
-                        for (int y = 0; y < ImageHeight; y++)
-                            for (int x = 0; x < ImageWidth; x++)
-                            {
-                                byte* pixel = this[x, y, z, t];
-                                byte prev = *pixel;
-                                *pixel -= *ims[x, y, z, t];
-                                if (*pixel > prev)//indicates that wrap-around occured
-                                    *pixel = byte.MinValue;
-                            }
+                long intIter = ImageNB / 4;
+                uint* iData = (uint*)ImageData;
+                uint* iSub = (uint*)ims.ImageData;
+                for (long i = 0; i < intIter; i++)
+                {
+                    iData[i] = SubBytesAsUint(iData[i], iSub[i]);
+                }
+
+                //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+                int restIter = (int)(ImageNB % 4);//NOTE: Could implement via mask over lowest two bits.
+                for (long i = ImageNB - restIter; i < ImageNB; i++)
+                {
+                    byte prev = ImageData[i];
+                    ImageData[i] -= ims.ImageData[i];
+                    if (ImageData[i] > prev)
+                        ImageData[i] = 0;
+                }
             }
             else
             {

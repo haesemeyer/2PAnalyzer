@@ -364,6 +364,28 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Divide each pixel by a constant
+        /// </summary>
+        /// <param name="value">The divisor</param>
+        public void DivConstant(byte value)
+        {
+            DisposeGuard();
+            //populate multiplication uint
+            uint val = ByteToUint(value);
+            long intIter = ImageNB / 4;
+            uint* iData = (uint*)ImageData;
+            for (long i = 0; i < intIter; i++)
+            {
+                iData[i] = DivBytesAsUint(iData[i], val);
+            }
+            int restIter = (int)(ImageNB % 4);
+            for (long i = ImageNB - restIter; i < ImageNB; i++)
+            {
+                ImageData[i] /= value;
+            }
+        }
+
+        /// <summary>
         /// Performs pixel-by-pixel addition of the given image
         /// stack to the current stack clipping at 255
         /// </summary>

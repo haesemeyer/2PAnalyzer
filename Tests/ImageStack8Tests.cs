@@ -356,7 +356,6 @@ namespace Tests
         [TestMethod]
         public void MulC_Correct()
         {
-            //Normal stride
             var ims = CreateDefaultStack();
             byte value = 20;
             byte mult = 7;
@@ -369,7 +368,6 @@ namespace Tests
         [TestMethod]
         public void OffStride_MulC_Correct()
         {
-            //Normal stride
             var ims = CreateOffStrideStack();
             byte value = 20;
             byte mult = 7;
@@ -380,6 +378,31 @@ namespace Tests
             ims.Dispose();
         }
 
-        
+        [TestMethod]
+        public void DivC_Correct()
+        {
+            var ims = CreateDefaultStack();
+            byte value = 20;
+            byte div = 7;
+            ims.SetAll(value);
+            ims.DivConstant(div);
+            CompareValImage((byte)(value / div), ims);
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void OffStride_DivC_Correct()
+        {
+            var ims = CreateOffStrideStack();
+            byte value = 20;
+            byte div = 7;
+            ims.SetAll(value);
+            ims.DivConstant(div);
+            CompareValImage((byte)(value / div), ims);
+            Marshal.FreeHGlobal((IntPtr)ims.ImageData);
+            ims.Dispose();
+        }
+
+
     }
 }

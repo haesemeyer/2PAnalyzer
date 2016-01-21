@@ -335,6 +335,35 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Multiply each pixel by a constant, clipping at 255
+        /// </summary>
+        /// <param name="value">The value to multiply by</param>
+        public void MulConstant(byte value)
+        {
+            DisposeGuard();
+            //populate multiplication uint
+            uint val = ByteToUint(value);
+            long intIter = ImageNB / 4;
+            uint* iData = (uint*)ImageData;
+            for(long i = 0;i<intIter;i++)
+            {
+                iData[i] = MulBytesAsUint(iData[i], val);
+            }
+            int restIter = (int)(ImageNB % 4);
+            for(long i = ImageNB-restIter;i<ImageNB;i++)
+            {
+                //overflow in multiplication case is not as easy
+                //as in addition case: For example in byte
+                //40*9 = 104 which is larger than 40 but should
+                //nonetheless have been clipped to 255
+                if (255 / value < ImageData[i])
+                    ImageData[i] = 255;
+                else
+                    ImageData[i] *= value;
+            }
+        }
+
+        /// <summary>
         /// Performs pixel-by-pixel addition of the given image
         /// stack to the current stack clipping at 255
         /// </summary>

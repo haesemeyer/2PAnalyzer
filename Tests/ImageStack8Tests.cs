@@ -527,6 +527,42 @@ namespace Tests
                 Assert.AreEqual(expMin, minCall, "Minimum comparison failed");
                 Assert.AreEqual(expMax, maxCall, "Maximum comparison failed");
             }
+            ims.Dispose();
+        }
+
+        [TestMethod]
+        public void MinMax_Offstride_Correct()
+        {
+            Random rnd = new Random();
+            var ims = CreateOffStrideStack();
+            byte min = 5;
+            byte max = 140;
+            byte rest = 30;
+            byte expMin, expMax;//can differ from min and max in case we set within the stride
+            for (int i = 0; i < 100; i++)
+            {
+                ims.SetAll(rest);
+                var ixMin = rnd.Next((int)ims.ImageNB);
+                ims.ImageData[ixMin] = min;
+                var ixMax = ixMin;
+                while (ixMax == ixMin)
+                    ixMax = rnd.Next((int)ims.ImageNB);//make sure that indices are distinct
+                ims.ImageData[ixMax] = max;
+                if (ixMin % ims.Stride >= ims.ImageWidth)
+                    expMin = rest;
+                else
+                    expMin = min;
+                if (ixMax % ims.Stride >= ims.ImageWidth)
+                    expMax = rest;
+                else
+                    expMax = max;
+                byte minCall, maxCall;
+                ims.FindMinMax(out minCall, out maxCall);
+                Assert.AreEqual(expMin, minCall, "Minimum comparison failed");
+                Assert.AreEqual(expMax, maxCall, "Maximum comparison failed");
+            }
+            Marshal.FreeHGlobal((IntPtr)ims.ImageData);
+            ims.Dispose();
         }
     }
 }

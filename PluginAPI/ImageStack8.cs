@@ -594,9 +594,48 @@ namespace TwoPAnalyzer.PluginAPI
             //scan in 32-bit increments
             long intIter = ImageNB / 4;
             uint* iData = (uint*)ImageData;
-            for(long i = 0; i<intIter;i++)
+            uint mask = (1 << 8) - 1;
+            for (long i = 0; i<intIter;i++)
             {
-                //NOTE: Do not compare within padding bytes!
+                //Do not compare within padding bytes!
+                uint comparator = iData[i];
+                uint b;
+                //first byte
+                if ((i * 4 % Stride) < ImageWidth)
+                {
+                    b = comparator & mask;
+                    if (b < minimum)
+                        minimum = (byte)b;
+                    if (b > maximum)
+                        maximum = (byte)b;
+                }
+                //second byte
+                if ((i * 4 + 1) % Stride < ImageWidth)
+                {
+                    b = (comparator >> 8) & mask;
+                    if (b < minimum)
+                        minimum = (byte)b;
+                    if (b > maximum)
+                        maximum = (byte)b;
+                }
+                //third byte
+                if ((i * 4 + 2) % Stride < ImageWidth)
+                {
+                    b = (comparator >> 16) & mask;
+                    if (b < minimum)
+                        minimum = (byte)b;
+                    if (b > maximum)
+                        maximum = (byte)b;
+                }
+                //fourth byte
+                if ((i * 4 + 3) % Stride < ImageWidth)
+                {
+                    b = (comparator >> 24) & mask;
+                    if (b < minimum)
+                        minimum = (byte)b;
+                    if (b > maximum)
+                        maximum = (byte)b;
+                }
             }
             int restIter = (int)(ImageNB % 4);
             for(long i = ImageNB - restIter;i<ImageNB;i++)
@@ -609,7 +648,6 @@ namespace TwoPAnalyzer.PluginAPI
                 if (ImageData[i] < minimum)
                     minimum = ImageData[i];
             }
-            throw new NotImplementedException();
         }
 
         #endregion

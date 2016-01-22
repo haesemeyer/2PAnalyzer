@@ -24,6 +24,8 @@ namespace TwoPAnalyzer.PluginAPI
     /// </summary>
     public unsafe class ImageStack8 : ImageStack
     {
+        private const uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
+
         #region Construction
 
         /// <summary>
@@ -118,7 +120,6 @@ namespace TwoPAnalyzer.PluginAPI
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint AddBytesAsUint(uint v1, uint v2)
         {
-            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
             uint intermediate = 0;//used to clip instead of roll-over when crossing 255
             uint retval = 0;
             //first byte
@@ -157,7 +158,6 @@ namespace TwoPAnalyzer.PluginAPI
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint SubBytesAsUint(uint v1, uint v2)
         {
-            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
             uint intermediate = 0;//used to clip instead of roll-over when crossing 0
             uint retval = 0;
             //first byte
@@ -188,7 +188,6 @@ namespace TwoPAnalyzer.PluginAPI
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint MulBytesAsUint(uint value, uint mul)
         {
-            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
             uint intermediate = 0;//used to clip instead of roll-over when crossing 255
             uint retval = 0;
             //first byte
@@ -228,7 +227,6 @@ namespace TwoPAnalyzer.PluginAPI
         private uint DivBytesAsUint(uint value, uint div)
         {
             //For division we don't have to take care of crossing 0
-            uint mask = (1 << 8) - 1;//lowest 8 bits are 1 all other are 0 => 255
             uint retval = 0;
             //first byte
             retval = (value & mask) / (div & mask);

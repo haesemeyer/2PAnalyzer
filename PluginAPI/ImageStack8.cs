@@ -592,7 +592,6 @@ namespace TwoPAnalyzer.PluginAPI
             //scan in 32-bit increments
             long intIter = ImageNB / 4;
             uint* iData = (uint*)ImageData;
-            uint mask = (1 << 8) - 1;
             for (long i = 0; i<intIter;i++)
             {
                 //Do not compare within padding bytes!

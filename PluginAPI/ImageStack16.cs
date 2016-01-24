@@ -281,7 +281,7 @@ namespace TwoPAnalyzer.PluginAPI
                 ushort prev = ImageData[i];
                 ImageData[i] += value;
                 if (ImageData[i] < prev)
-                    ImageData[i] = 255;
+                    ImageData[i] = ushort.MaxValue;
             }
         }
 

@@ -25,7 +25,7 @@ namespace Tests
         private ImageStack16 CreateOffStrideStack()
         {
             ushort* buffer = (ushort*)Marshal.AllocHGlobal(41 * 41 * 41 * 41 * 2);
-            return new ImageStack16(buffer, 41, 41, 41, 41, 41, ImageStack.SliceOrders.TBeforeZ);
+            return new ImageStack16(buffer, 41, 82, 41, 41, 41, ImageStack.SliceOrders.TBeforeZ);
         }
 
         /// <summary>
@@ -73,6 +73,21 @@ namespace Tests
         {
             var ims = new ImageStack16(20, 0, 40, 50, ImageStack.SliceOrders.TBeforeZ);
             ims.Dispose();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ShallowConstruction_OddStride()
+        {
+            ushort* buffer = (ushort*)Marshal.AllocHGlobal(51);
+            try
+            {
+                var ims = new ImageStack16(buffer, 51, 51, 1, 1, 1, ImageStack.SliceOrders.TBeforeZ);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal((IntPtr)buffer);
+            }
         }
 
         [TestMethod]

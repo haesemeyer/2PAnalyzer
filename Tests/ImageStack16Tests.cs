@@ -508,11 +508,11 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 ims.SetAll(rest);
-                var ixMin = rnd.Next((int)ims.ImageNB);
+                var ixMin = rnd.Next((int)(ims.ImageNB / 2));
                 ims.ImageData[ixMin] = min;
                 var ixMax = ixMin;
                 while (ixMax == ixMin)
-                    ixMax = rnd.Next((int)ims.ImageNB);//make sure that indices are distinct
+                    ixMax = rnd.Next((int)(ims.ImageNB / 2));//make sure that indices are distinct
                 ims.ImageData[ixMax] = max;
                 if (ixMin % ims.Stride >= ims.ImageWidth)
                     expMin = rest;
@@ -542,11 +542,11 @@ namespace Tests
             for (int i = 0; i < 100; i++)
             {
                 ims.SetAll(rest);
-                var ixMin = rnd.Next((int)ims.ImageNB);
+                var ixMin = rnd.Next((int)(ims.ImageNB / 2));
                 ims.ImageData[ixMin] = min;
                 var ixMax = ixMin;
                 while (ixMax == ixMin)
-                    ixMax = rnd.Next((int)ims.ImageNB);//make sure that indices are distinct
+                    ixMax = rnd.Next((int)(ims.ImageNB / 2));//make sure that indices are distinct
                 ims.ImageData[ixMax] = max;
                 if (ixMin % ims.Stride >= ims.ImageWidth)
                     expMin = rest;

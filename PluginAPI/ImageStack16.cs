@@ -245,13 +245,13 @@ namespace TwoPAnalyzer.PluginAPI
             //NOTE: We implicitely assume that ImageData is aligned to a 4byte-boundary
             uint element = ShortToUint(value);
             long intIter = ImageNB / 4;
-            //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-            int restIter = (int)(ImageNB % 4);
             uint* iData = (uint*)ImageData;
             for (long i = 0; i < intIter; i++)
                 iData[i] = element;
-            //NOTE: The following will result in access violation as ImageData is not a byte*!
-            for (long i = ImageNB - restIter; i < ImageNB; i++)
+            //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
+            int restIter = (int)(ImageNB % 4) / 2;
+            System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+            for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
                 ImageData[i] = value;
         }
 
@@ -274,8 +274,9 @@ namespace TwoPAnalyzer.PluginAPI
             }
 
             //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-            int restIter = (int)(ImageNB % 4);
-            for (long i = ImageNB - restIter; i < ImageNB; i++)
+            int restIter = (int)(ImageNB % 4) / 2;
+            System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+            for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
             {
                 ushort prev = ImageData[i];
                 ImageData[i] += value;
@@ -303,8 +304,9 @@ namespace TwoPAnalyzer.PluginAPI
             }
 
             //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-            int restIter = (int)(ImageNB % 4);
-            for (long i = ImageNB - restIter; i < ImageNB; i++)
+            int restIter = (int)(ImageNB % 4) / 2;
+            System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+            for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
             {
                 ushort prev = ImageData[i];
                 ImageData[i] -= value;
@@ -328,8 +330,9 @@ namespace TwoPAnalyzer.PluginAPI
             {
                 iData[i] = MulShortAsUint(iData[i], val);
             }
-            int restIter = (int)(ImageNB % 4);
-            for (long i = ImageNB - restIter; i < ImageNB; i++)
+            int restIter = (int)(ImageNB % 4) / 2;
+            System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+            for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
             {
                 //overflow in multiplication case is not as easy
                 //as in addition case: For example in byte
@@ -357,8 +360,9 @@ namespace TwoPAnalyzer.PluginAPI
             {
                 iData[i] = DivShortAsUint(iData[i], val);
             }
-            int restIter = (int)(ImageNB % 4);
-            for (long i = ImageNB - restIter; i < ImageNB; i++)
+            int restIter = (int)(ImageNB % 4) / 2;
+            System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+            for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
             {
                 ImageData[i] /= value;
             }
@@ -393,8 +397,9 @@ namespace TwoPAnalyzer.PluginAPI
                 }
 
                 //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-                int restIter = (int)(ImageNB % 4);
-                for (long i = ImageNB - restIter; i < ImageNB; i++)
+                int restIter = (int)(ImageNB % 4) / 2;
+                System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+                for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
                 {
                     ushort prev = ImageData[i];
                     ImageData[i] += ims.ImageData[i];
@@ -441,8 +446,9 @@ namespace TwoPAnalyzer.PluginAPI
                 }
 
                 //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-                int restIter = (int)(ImageNB % 4);
-                for (long i = ImageNB - restIter; i < ImageNB; i++)
+                int restIter = (int)(ImageNB % 4) / 2;
+                System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+                for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
                 {
                     ushort prev = ImageData[i];
                     ImageData[i] -= ims.ImageData[i];
@@ -494,8 +500,9 @@ namespace TwoPAnalyzer.PluginAPI
                 }
 
                 //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-                int restIter = (int)(ImageNB % 4);
-                for (long i = ImageNB - restIter; i < ImageNB; i++)
+                int restIter = (int)(ImageNB % 4) / 2;
+                System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+                for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
                 {
                     if (ushort.MaxValue / ims.ImageData[i] < ImageData[i])
                         ImageData[i] = ushort.MaxValue;
@@ -548,8 +555,9 @@ namespace TwoPAnalyzer.PluginAPI
                 }
 
                 //For all images we create, we expect the following to be 0 because of the 4-byte aligned stride
-                int restIter = (int)(ImageNB % 4);
-                for (long i = ImageNB - restIter; i < ImageNB; i++)
+                int restIter = (int)(ImageNB % 4) / 2;
+                System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+                for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
                 {
                     ImageData[i] /= ims.ImageData[i];
                 }
@@ -579,7 +587,7 @@ namespace TwoPAnalyzer.PluginAPI
                 uint comparator = iData[i];
                 uint b;
                 //first 16-bit
-                if ((i * 4 % Stride) < ImageWidth)
+                if ((i * 4) % Stride < ImageWidth)
                 {
                     b = comparator & mask;
                     if (b < minimum)
@@ -597,8 +605,9 @@ namespace TwoPAnalyzer.PluginAPI
                         maximum = (ushort)b;
                 }
             }
-            int restIter = (int)(ImageNB % 4);
-            for (long i = ImageNB - restIter; i < ImageNB; i++)
+            int restIter = (int)(ImageNB % 4) / 2;
+            System.Diagnostics.Debug.Assert(restIter < 2);//there can be only either 0 or 1 ushort left!
+            for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
             {
                 //Do not compare within padding bytes!
                 if (i % Stride >= ImageWidth)

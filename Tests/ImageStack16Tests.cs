@@ -514,11 +514,11 @@ namespace Tests
                 while (ixMax == ixMin)
                     ixMax = rnd.Next((int)(ims.ImageNB / 2));//make sure that indices are distinct
                 ims.ImageData[ixMax] = max;
-                if (ixMin % ims.Stride >= ims.ImageWidth)
+                if ((ixMin * 2) % ims.Stride >= ims.ImageWidth)
                     expMin = rest;
                 else
                     expMin = min;
-                if (ixMax % ims.Stride >= ims.ImageWidth)
+                if ((ixMax * 2) % ims.Stride >= ims.ImageWidth)
                     expMax = rest;
                 else
                     expMax = max;
@@ -548,11 +548,11 @@ namespace Tests
                 while (ixMax == ixMin)
                     ixMax = rnd.Next((int)(ims.ImageNB / 2));//make sure that indices are distinct
                 ims.ImageData[ixMax] = max;
-                if (ixMin % ims.Stride >= ims.ImageWidth)
+                if ((ixMin * 2) % ims.Stride >= ims.ImageWidth)
                     expMin = rest;
                 else
                     expMin = min;
-                if (ixMax % ims.Stride >= ims.ImageWidth)
+                if ((ixMax * 2) % ims.Stride >= ims.ImageWidth)
                     expMax = rest;
                 else
                     expMax = max;

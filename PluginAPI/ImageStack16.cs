@@ -88,6 +88,9 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="sliceOrder">The slize ordering of the image</param>
         public ImageStack16(ushort* imageData, int width, int stride, int height, int nZ, int nT, SliceOrders sliceOrder)
         {
+            //check stride - we don't accept strides that aren't divisible by 2 (size of ushort)
+            if (stride % 2 != 0)
+                throw new ArgumentException("Stride of 16-bit image has to be divisible by 2");
             InitializeShallow((byte*)imageData, width, stride, height, nZ, nT, sliceOrder, 2);
         }
 

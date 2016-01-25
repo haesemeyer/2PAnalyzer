@@ -69,11 +69,29 @@ namespace TwoPAnalyzer.PluginAPI
         /// Construct image stack 16 with values
         /// copied from 8-bit stack
         /// </summary>
-        /// <param name="ims"></param>
-        public ImageStack16(ImageStack8 ims)
+        /// <param name="ims">The source image to copy from</param>
+        /// <param name="rescale">If true values will be re-scaled into 0-65535 range</param>
+        public ImageStack16(ImageStack8 ims, bool rescale)
         {
-            //TODO: Implement bit depth upscaling constructor
-            throw new NotImplementedException();
+            SliceOrder = ims.SliceOrder;
+            //initialize buffer and dimension properties according to source stack
+            InitializeImageBuffer(ims.ImageWidth, ims.ImageHeight, ims.ZPlanes, ims.TimePoints, 2);
+            //loop over pixels, assigning values
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                        {
+                            if (rescale)
+                            {
+                                float temp = *ims[x, y, z, t];
+                                temp = (temp / byte.MaxValue) * ushort.MaxValue;
+                                System.Diagnostics.Debug.Assert(temp <= ushort.MaxValue);
+                                *this[x, y, z, t] = (ushort)temp;
+                            }
+                            else
+                                *this[x, y, z, t] = *ims[x, y, z, t];
+                        }
         }
 
         /// <summary>

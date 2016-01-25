@@ -133,6 +133,56 @@ namespace Tests
         }
 
         [TestMethod]
+        public void From8bit_Constructor_Correct()
+        {
+            Random rnd = new Random();
+            var ims8 = new ImageStack8(43, 43, 41, 41, ImageStack.SliceOrders.ZBeforeT);
+            //quickly fill image with random values
+            int* buffer = (int*)ims8.ImageData;
+            long iter = ims8.ImageNB / 4;
+            for(long i = 0;i< iter;i++)
+            {
+                buffer[i] = rnd.Next();
+            }
+            var ims16 = new ImageStack16(ims8, false);
+            Assert.AreEqual(ims8.SliceOrder, ims16.SliceOrder);
+            for (int z = 0; z < ims8.ZPlanes; z++)
+                for (int t = 0; t < ims8.TimePoints; t++)
+                    for (int y = 0; y < ims8.ImageHeight; y++)
+                        for (int x = 0; x < ims8.ImageWidth; x++)
+                            Assert.AreEqual(*ims8[x, y, z, t], *ims16[x, y, z, t]);
+            ims8.Dispose();
+            ims16.Dispose();
+        }
+
+        [TestMethod]
+        public void UpscaleConstructor_Correct()
+        {
+            Random rnd = new Random();
+            var ims8 = new ImageStack8(43, 43, 41, 41, ImageStack.SliceOrders.ZBeforeT);
+            //quickly fill image with random values
+            int* buffer = (int*)ims8.ImageData;
+            long iter = ims8.ImageNB / 4;
+            for (long i = 0; i < iter; i++)
+            {
+                buffer[i] = rnd.Next();
+            }
+            var ims16 = new ImageStack16(ims8, true);
+            Assert.AreEqual(ims8.SliceOrder, ims16.SliceOrder);
+            for (int z = 0; z < ims8.ZPlanes; z++)
+                for (int t = 0; t < ims8.TimePoints; t++)
+                    for (int y = 0; y < ims8.ImageHeight; y++)
+                        for (int x = 0; x < ims8.ImageWidth; x++)
+                        {
+                            float value = *ims8[x, y, z, t];
+                            value = (value / 255) * ushort.MaxValue;
+                            Assert.AreEqual((ushort)Math.Floor(value), *ims16[x, y, z, t]);
+                        }
+            ims8.Dispose();
+            ims16.Dispose();
+        }
+
+        [TestMethod]
         public void AddC_Correct()
         {
             ushort initial = 210;

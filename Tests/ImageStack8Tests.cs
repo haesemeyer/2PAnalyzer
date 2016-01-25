@@ -91,6 +91,38 @@ namespace Tests
         }
 
         [TestMethod]
+        public void Downscale_Construction_Correct()
+        {
+            var rnd = new Random();
+            ImageStack16 source = new ImageStack16(50, 50, 50, 50, ImageStack.SliceOrders.TBeforeZ);
+            //quickly fill image with random values
+            int* buffer = (int*)source.ImageData;
+            long iter = source.ImageNB / 4;
+            for (long i = 0; i < iter; i++)
+            {
+                buffer[i] = rnd.Next();
+            }
+            ushort rangeMin = 10;
+            ushort rangeMax = 1000;
+            ImageStack8 ims8 = new ImageStack8(source, rangeMin, rangeMax);
+            Assert.AreEqual(source.SliceOrder, ims8.SliceOrder);
+            for (int z = 0; z < source.ZPlanes; z++)
+                for (int t = 0; t < source.TimePoints; t++)
+                    for (int y = 0; y < source.ImageHeight; y++)
+                        for (int x = 0; x < source.ImageWidth; x++)
+                        {
+                            float pixel = *source[x, y, z, t];
+                            pixel = pixel - rangeMin;
+                            pixel = pixel / (rangeMax - rangeMin) * byte.MaxValue;
+                            pixel = pixel < 0 ? 0 : pixel;
+                            pixel = pixel > byte.MaxValue ? byte.MaxValue : pixel;
+                            Assert.AreEqual((byte)pixel, *ims8[x, y, z, t]);
+                        }
+            source.Dispose();
+            ims8.Dispose();
+        }
+
+        [TestMethod]
         public void PixelPointerNull_AfterDispose()
         {
             var ims = new ImageStack8(5, 5, 5, 5, ImageStack.SliceOrders.ZBeforeT);

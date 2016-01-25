@@ -76,6 +76,33 @@ namespace TwoPAnalyzer.PluginAPI
             InitializeShallow(imageData, width, stride, height, nZ, nT, sliceOrder, 1);
         }
 
+        /// <summary>
+        /// Constructs an 8bit stack via rescaling of a 16bit stack
+        /// </summary>
+        /// <param name="ims">The source stack to be copied</param>
+        /// <param name="min">This value and below will be set to 0</param>
+        /// <param name="max">This value and above will be set to 255</param>
+        public ImageStack8(ImageStack16 ims, ushort min=ushort.MinValue, ushort max=ushort.MaxValue)
+        {
+            SliceOrder = ims.SliceOrder;
+            //initialize buffer and dimension properties according to source stack
+            InitializeImageBuffer(ims.ImageWidth, ims.ImageHeight, ims.ZPlanes, ims.TimePoints, 1);
+            //loop over pixels, assigning values
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                        {
+                            float temp = *ims[x, y, z, t];
+                            temp = (temp - min) / (max- min) * byte.MaxValue;
+                            if (temp < 0)
+                                temp = 0;
+                            else if (temp > 255)
+                                temp = 255;
+                            *this[x, y, z, t] = (byte)temp;
+                        }
+        }
+
         #endregion
 
         #region Properties

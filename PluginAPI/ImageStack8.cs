@@ -56,6 +56,8 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="ims">The image to copy</param>
         public ImageStack8(ImageStack8 ims)
         {
+            if (ims == null)
+                throw new ArgumentNullException(nameof(ims));
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't copy disposed stack");
             InitializeAsCopy(ims);
@@ -84,6 +86,8 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="max">This value and above will be set to 255</param>
         public ImageStack8(ImageStack16 ims, ushort min=ushort.MinValue, ushort max=ushort.MaxValue)
         {
+            if (ims == null)
+                throw new ArgumentNullException(nameof(ims));
             SliceOrder = ims.SliceOrder;
             //initialize buffer and dimension properties according to source stack
             InitializeImageBuffer(ims.ImageWidth, ims.ImageHeight, ims.ZPlanes, ims.TimePoints, 1);

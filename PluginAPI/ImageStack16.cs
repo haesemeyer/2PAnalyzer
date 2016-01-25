@@ -60,6 +60,8 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="ims">The image to copy</param>
         public ImageStack16(ImageStack16 ims)
         {
+            if (ims == null)
+                throw new ArgumentNullException(nameof(ims));
             if (ims.IsDisposed)
                 throw new ArgumentException("Can't copy disposed stack");
             InitializeAsCopy(ims);
@@ -73,6 +75,8 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="rescale">If true values will be re-scaled into 0-65535 range</param>
         public ImageStack16(ImageStack8 ims, bool rescale)
         {
+            if (ims == null)
+                throw new ArgumentNullException(nameof(ims));
             SliceOrder = ims.SliceOrder;
             //initialize buffer and dimension properties according to source stack
             InitializeImageBuffer(ims.ImageWidth, ims.ImageHeight, ims.ZPlanes, ims.TimePoints, 2);

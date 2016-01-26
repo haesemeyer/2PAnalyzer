@@ -105,8 +105,8 @@ namespace TwoPAnalyzer.PluginAPI
                             temp = (temp - min) / (max- min) * byte.MaxValue;
                             if (temp < 0)
                                 temp = 0;
-                            else if (temp > 255)
-                                temp = 255;
+                            else if (temp > byte.MaxValue)
+                                temp = byte.MaxValue;
                             *this[x, y, z, t] = (byte)temp;
                         }
         }

@@ -77,6 +77,8 @@ namespace TwoPAnalyzer.PluginAPI
         {
             if (ims == null)
                 throw new ArgumentNullException(nameof(ims));
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't copy disposed stack");
             SliceOrder = ims.SliceOrder;
             //initialize buffer and dimension properties according to source stack
             InitializeImageBuffer(ims.ImageWidth, ims.ImageHeight, ims.ZPlanes, ims.TimePoints, 2);

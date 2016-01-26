@@ -88,6 +88,8 @@ namespace TwoPAnalyzer.PluginAPI
         {
             if (ims == null)
                 throw new ArgumentNullException(nameof(ims));
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't copy disposed stack");
             if (max <= min)
                 throw new ArgumentException("max has to be strictly greater than min");
             SliceOrder = ims.SliceOrder;

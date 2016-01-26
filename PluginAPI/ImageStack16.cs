@@ -101,6 +101,39 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Constructs a 16bit stack via rescaling of a 32bit float stack
+        /// </summary>
+        /// <param name="ims">The source stack to be copied</param>
+        /// <param name="min">This value and below will be set to 0</param>
+        /// <param name="max">This value and above will be set to 65535</param>
+        public ImageStack16(ImageStack32F ims, float min, float max)
+        {
+            if (ims == null)
+                throw new ArgumentNullException(nameof(ims));
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't copy disposed stack");
+            if (max <= min)
+                throw new ArgumentException("max has to be strictly greater than min");
+            SliceOrder = ims.SliceOrder;
+            //initialize buffer and dimension properties according to source stack
+            InitializeImageBuffer(ims.ImageWidth, ims.ImageHeight, ims.ZPlanes, ims.TimePoints, 2);
+            //loop over pixels, assigning values
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                        {
+                            float temp = *ims[x, y, z, t];
+                            temp = (temp - min) / (max - min) * ushort.MaxValue;
+                            if (temp < 0)
+                                temp = 0;
+                            else if (temp > ushort.MaxValue)
+                                temp = ushort.MaxValue;
+                            *this[x, y, z, t] = (byte)temp;
+                        }
+        }
+
+        /// <summary>
         /// Construct new ImageStack using an initialized buffer
         /// </summary>
         /// <param name="imageData">Pointer to the buffer data</param>

@@ -165,6 +165,62 @@ namespace TwoPAnalyzer.PluginAPI
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Sets all pixels to the indicated value
+        /// </summary>
+        /// <param name="value">The value to set pixels to</param>
+        public void SetAll(float value)
+        {
+            DisposeGuard();
+            for (long i = 0; i < ImageNB / 4; i++)
+                ImageData[i] = value;
+        }
+
+        /// <summary>
+        /// Adds a constant value to each pixel
+        /// </summary>
+        /// <param name="value">The value to add</param>
+        public void AddConstant(float value)
+        {
+            DisposeGuard();
+            for (long i = 0; i < ImageNB / 4; i++)
+                ImageData[i] += value;
+        }
+
+        /// <summary>
+        /// Subtracts a constant value from each pixel
+        /// </summary>
+        /// <param name="value">The value to subtract</param>
+        public void SubConstant(float value)
+        {
+            DisposeGuard();
+            for (long i = 0; i < ImageNB / 4; i++)
+                ImageData[i] -= value;
+        }
+
+        /// <summary>
+        /// Multiplies each pixel with a constant value
+        /// </summary>
+        /// <param name="value">The value to multiply by</param>
+        public void MulConstant(float value)
+        {
+            DisposeGuard();
+            for (long i = 0; i < ImageNB / 4; i++)
+                ImageData[i] *= value;
+        }
+
+        /// <summary>
+        /// Divides each pixel by a constant value
+        /// </summary>
+        /// <param name="value">The value to divide by</param>
+        public void DivConstant(float value)
+        {
+            DisposeGuard();
+            for (long i = 0; i < ImageNB / 4; i++)
+                ImageData[i] /= value;
+        }
+
         #endregion
     }
 }

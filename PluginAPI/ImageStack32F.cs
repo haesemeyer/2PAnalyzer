@@ -221,6 +221,94 @@ namespace TwoPAnalyzer.PluginAPI
                 ImageData[i] /= value;
         }
 
+        /// <summary>
+        /// Add another float stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to add</param>
+        public void Add(ImageStack32F ims)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            if (Stride == ims.Stride)
+                for (long i = 0; i < ImageNB / 4; i++)
+                    ImageData[i] += ims.ImageData[i];
+            else//need to go pixel-wise
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] += *ims[x, y, z, t];
+        }
+
+        /// <summary>
+        /// Subtract another float stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to subtract</param>
+        public void Subtract(ImageStack32F ims)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            if (Stride == ims.Stride)
+                for (long i = 0; i < ImageNB / 4; i++)
+                    ImageData[i] -= ims.ImageData[i];
+            else//need to go pixel-wise
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] -= *ims[x, y, z, t];
+        }
+
+        /// <summary>
+        /// Multiply with another float stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to multiply with</param>
+        public void Multipy(ImageStack32F ims)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            if (Stride == ims.Stride)
+                for (long i = 0; i < ImageNB / 4; i++)
+                    ImageData[i] *= ims.ImageData[i];
+            else//need to go pixel-wise
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] *= *ims[x, y, z, t];
+        }
+
+        /// <summary>
+        /// Divide by another float stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to divide by</param>
+        public void Divide(ImageStack32F ims)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            if (Stride == ims.Stride)
+                for (long i = 0; i < ImageNB / 4; i++)
+                    ImageData[i] /= ims.ImageData[i];
+            else//need to go pixel-wise
+                for (int z = 0; z < ZPlanes; z++)
+                    for (int t = 0; t < TimePoints; t++)
+                        for (int y = 0; y < ImageHeight; y++)
+                            for (int x = 0; x < ImageWidth; x++)
+                                *this[x, y, z, t] /= *ims[x, y, z, t];
+        }
+
         #endregion
     }
 }

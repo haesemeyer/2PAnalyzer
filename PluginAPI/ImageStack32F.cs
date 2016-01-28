@@ -309,6 +309,27 @@ namespace TwoPAnalyzer.PluginAPI
                                 *this[x, y, z, t] /= *ims[x, y, z, t];
         }
 
+        /// <summary>
+        /// Finds the minimum and maximum pixel value in the image stack
+        /// </summary>
+        /// <param name="minimum">The minimum</param>
+        /// <param name="maximum">The maximum</param>
+        public void FindMinMax(out float minimum, out float maximum)
+        {
+            minimum = float.PositiveInfinity;
+            maximum = float.NegativeInfinity;
+            //scan over pixels, ignoring padding bytes if any
+            for(long i = 0;i<ImageNB/4;i++)
+            {
+                if (i % Stride > ImageWidth)
+                    continue;
+                if (ImageData[i] < minimum)
+                    minimum = ImageData[i];
+                if (ImageData[i] > maximum)
+                    maximum = ImageData[i];
+            }
+        }
+
         #endregion
     }
 }

@@ -72,6 +72,9 @@ namespace TwoPAnalyzer.PluginAPI
         /// <param name="sliceOrder">The slize ordering of the image</param>
         public ImageStack32F(float* imageData, int width, int stride, int height, int nZ, int nT, SliceOrders sliceOrder)
         {
+            //check stride - we don't accept strides that aren't divisible by 4 (size of float)
+            if (stride % 4 != 0)
+                throw new ArgumentException("Stride of 32-bit image has to be divisible by 4");
             InitializeShallow((byte*)imageData, width, stride, height, nZ, nT, sliceOrder, 4);
         }
 

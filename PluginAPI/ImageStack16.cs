@@ -409,6 +409,8 @@ namespace TwoPAnalyzer.PluginAPI
         public void DivConstant(ushort value)
         {
             DisposeGuard();
+            if (value == 0)
+                throw new DivideByZeroException("Can't divide stack by 0");
             //populate division uint
             uint val = ShortToUint(value);
             long intIter = ImageNB / 4;

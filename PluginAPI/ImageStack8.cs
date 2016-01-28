@@ -436,6 +436,8 @@ namespace TwoPAnalyzer.PluginAPI
         public void DivConstant(byte value)
         {
             DisposeGuard();
+            if (value == 0)
+                throw new DivideByZeroException("Can't divide stack by 0");
             //populate multiplication uint
             uint val = ByteToUint(value);
             long intIter = ImageNB / 4;

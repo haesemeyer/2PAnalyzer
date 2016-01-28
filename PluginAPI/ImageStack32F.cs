@@ -247,6 +247,44 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Adds a scaled 16-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to add</param>
+        /// <param name="outMax">65535 will be assigned to this value</param>
+        public void Add(ImageStack16 ims, float outMax = ushort.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] += (float)*ims[x, y, z, t] / ushort.MaxValue * outMax;
+        }
+
+        /// <summary>
+        /// Add a scaled 8-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to add</param>
+        /// <param name="outMax">255 will be assigned to this value</param>
+        public void Add(ImageStack8 ims, float outMax = byte.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] += (float)*ims[x, y, z, t] / byte.MaxValue * outMax;
+        }
+
+        /// <summary>
         /// Subtract another float stack pixel-wise
         /// </summary>
         /// <param name="ims">The stack to subtract</param>
@@ -266,6 +304,44 @@ namespace TwoPAnalyzer.PluginAPI
                         for (int y = 0; y < ImageHeight; y++)
                             for (int x = 0; x < ImageWidth; x++)
                                 *this[x, y, z, t] -= *ims[x, y, z, t];
+        }
+
+        /// <summary>
+        /// Subtracts a scaled 16-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to subtract</param>
+        /// <param name="outMax">65535 will be assigned to this value</param>
+        public void Subtract(ImageStack16 ims, float outMax = ushort.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] -= (float)*ims[x, y, z, t] / ushort.MaxValue * outMax;
+        }
+
+        /// <summary>
+        /// Subtracts a scaled 8-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to subtract</param>
+        /// <param name="outMax">255 will be assigned to this value</param>
+        public void Subtract(ImageStack8 ims, float outMax = byte.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] -= (float)*ims[x, y, z, t] / byte.MaxValue * outMax;
         }
 
         /// <summary>
@@ -291,6 +367,44 @@ namespace TwoPAnalyzer.PluginAPI
         }
 
         /// <summary>
+        /// Multiply with a scaled 16-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to multiply with</param>
+        /// <param name="outMax">65535 will be assigned to this value</param>
+        public void Multiply(ImageStack16 ims, float outMax = ushort.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] *= (float)*ims[x, y, z, t] / ushort.MaxValue * outMax;
+        }
+
+        /// <summary>
+        /// Multiply with a scaled 8-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to multiply with</param>
+        /// <param name="outMax">255 will be assigned to this value</param>
+        public void Multiply(ImageStack8 ims, float outMax = byte.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] *= (float)*ims[x, y, z, t] / byte.MaxValue * outMax;
+        }
+
+        /// <summary>
         /// Divide by another float stack pixel-wise
         /// </summary>
         /// <param name="ims">The stack to divide by</param>
@@ -310,6 +424,44 @@ namespace TwoPAnalyzer.PluginAPI
                         for (int y = 0; y < ImageHeight; y++)
                             for (int x = 0; x < ImageWidth; x++)
                                 *this[x, y, z, t] /= *ims[x, y, z, t];
+        }
+
+        /// <summary>
+        /// Divide by a scaled 16-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to divide by</param>
+        /// <param name="outMax">65535 will be assigned to this value</param>
+        public void Divide(ImageStack16 ims, float outMax = ushort.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] /= (float)*ims[x, y, z, t] / ushort.MaxValue * outMax;
+        }
+
+        /// <summary>
+        /// Divide by a scaled 8-bit stack pixel-wise
+        /// </summary>
+        /// <param name="ims">The stack to divide by</param>
+        /// <param name="outMax">255 will be assigned to this value</param>
+        public void Divide(ImageStack8 ims, float outMax = byte.MaxValue)
+        {
+            DisposeGuard();
+            if (ims.IsDisposed)
+                throw new ArgumentException("Can't add disposed image");
+            if (!IsCompatible(ims))
+                throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
+            for (int z = 0; z < ZPlanes; z++)
+                for (int t = 0; t < TimePoints; t++)
+                    for (int y = 0; y < ImageHeight; y++)
+                        for (int x = 0; x < ImageWidth; x++)
+                            *this[x, y, z, t] /= (float)*ims[x, y, z, t] / byte.MaxValue * outMax;
         }
 
         /// <summary>

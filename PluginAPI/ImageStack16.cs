@@ -651,7 +651,7 @@ namespace TwoPAnalyzer.PluginAPI
                 uint comparator = iData[i];
                 uint b;
                 //first 16-bit
-                if ((i * 4) % Stride < ImageWidth)
+                if ((i * 4) % Stride < ImageWidth * 2)
                 {
                     b = comparator & mask;
                     if (b < minimum)
@@ -660,7 +660,7 @@ namespace TwoPAnalyzer.PluginAPI
                         maximum = (ushort)b;
                 }
                 //second 16-bit
-                if ((i * 4 + 2) % Stride < ImageWidth)
+                if ((i * 4 + 2) % Stride < ImageWidth * 2)
                 {
                     b = (comparator >> 16) & mask;
                     if (b < minimum)
@@ -674,7 +674,7 @@ namespace TwoPAnalyzer.PluginAPI
             for (long i = ImageNB / 2 - restIter; i < ImageNB / 2; i++)
             {
                 //Do not compare within padding bytes!
-                if (i % Stride >= ImageWidth)
+                if (i * 2 % Stride >= ImageWidth * 2)
                     continue;
                 if (ImageData[i] > maximum)
                     maximum = ImageData[i];

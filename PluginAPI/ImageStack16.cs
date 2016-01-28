@@ -633,6 +633,11 @@ namespace TwoPAnalyzer.PluginAPI
             }
         }
 
+        /// <summary>
+        /// Finds the minimum and maximum pixel value in the image stack
+        /// </summary>
+        /// <param name="minimum">The minimum</param>
+        /// <param name="maximum">The maximum</param>
         public void FindMinMax(out ushort minimum, out ushort maximum)
         {
             minimum = ushort.MaxValue;

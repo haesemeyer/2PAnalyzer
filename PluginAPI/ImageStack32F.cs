@@ -321,7 +321,7 @@ namespace TwoPAnalyzer.PluginAPI
             //scan over pixels, ignoring padding bytes if any
             for(long i = 0;i<ImageNB/4;i++)
             {
-                if (i % Stride > ImageWidth)
+                if (i % Stride >= ImageWidth)
                     continue;
                 if (ImageData[i] < minimum)
                     minimum = ImageData[i];

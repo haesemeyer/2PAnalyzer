@@ -57,6 +57,7 @@
     <Compile Include="ImageStack8Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ImageStack16Tests.cs" />
+    <Compile Include="ImageStack32FTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PluginAPI\PluginAPI.csproj">

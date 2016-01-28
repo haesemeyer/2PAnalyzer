@@ -272,7 +272,7 @@ namespace TwoPAnalyzer.PluginAPI
         /// Multiply with another float stack pixel-wise
         /// </summary>
         /// <param name="ims">The stack to multiply with</param>
-        public void Multipy(ImageStack32F ims)
+        public void Multiply(ImageStack32F ims)
         {
             DisposeGuard();
             if (ims.IsDisposed)

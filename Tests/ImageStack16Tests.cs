@@ -463,7 +463,7 @@ namespace Tests
             ims1.SetAll(val1);
             ims2.SetAll(val2);
             ims1.Multiply(ims2);
-            CompareValImage((byte)(val1 * val2), ims1);
+            CompareValImage((ushort)(val1 * val2), ims1);
             ims1.Dispose();
             ims2.Dispose();
         }

@@ -292,7 +292,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't subtract disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             if (Stride == ims.Stride)
@@ -315,7 +315,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't subtract disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             for (int z = 0; z < ZPlanes; z++)
@@ -334,7 +334,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't subtract disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             for (int z = 0; z < ZPlanes; z++)
@@ -352,7 +352,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't multiply with disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             if (Stride == ims.Stride)
@@ -375,7 +375,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't multiply with disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             for (int z = 0; z < ZPlanes; z++)
@@ -394,7 +394,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't multiply with disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             for (int z = 0; z < ZPlanes; z++)
@@ -412,7 +412,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't divide by disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             if (Stride == ims.Stride)
@@ -435,7 +435,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't divide by disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             for (int z = 0; z < ZPlanes; z++)
@@ -454,7 +454,7 @@ namespace TwoPAnalyzer.PluginAPI
         {
             DisposeGuard();
             if (ims.IsDisposed)
-                throw new ArgumentException("Can't add disposed image");
+                throw new ArgumentException("Can't divide by disposed image");
             if (!IsCompatible(ims))
                 throw new ArgumentException("Given image has wrong dimensions or z versus t ordering");
             for (int z = 0; z < ZPlanes; z++)
